@@ -17,7 +17,7 @@ Die Live-Oberfläche startet mit 384 Neuronen. Umschaltbare Profile mit 96,
 1.536 und 6.144 Neuronen bilden zwei Hemisphären, sechs funktionale Regionen,
 vier kortikale Schichten und subkortikale modulatorische Kerne ab.
 
-![TATARUS Gesamtorganismus](docs/assets/T_11_Organism_3D.png)
+![TATARUS Gesamtorganismus](docs/)
 
 ## Herunterladen
 
