@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+
+<html lang="de"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><meta content="Öffentliche C++- und C-ABI-Schnittstellen des aktuellen Projekts für Mind, Organismus, IMAGINATIO, Kartografie und Cortex." name="description"/><title>API-Referenz · TATARUS</title><link href="../assets/documentation.css" rel="stylesheet"/></head><body><a class="skip-link" href="#inhalt">Zum Inhalt</a><nav class="site-nav"><div class="site-nav__inner"><a class="brand" href="../index.html">TATARUS</a><a href="projektuebersicht.html">Projekt</a><a href="systemuebersicht.html">System</a><a href="systemhandbuch.html">Handbuch</a><a href="organismus.html">Organismus</a><a href="imaginatio.html">IMAGINATIO</a><a href="cortex.html">Cortex</a><a href="ui-handbuch.html">UI</a><a aria-current="page" href="api-referenz.html">API</a><a href="integration.html">Integration</a><a href="validierung.html">Validierung</a><a href="benchmark.html">Benchmark</a><a href="vision-verantwortung.html">Einordnung</a><a class="pdf-link" href="../wiki/index.html">Wiki</a></div></nav><div class="doc-shell"><header class="doc-hero"><div class="eyebrow">Technische Dokumentation</div><h1>API-Referenz</h1><p>Öffentliche C++- und C-ABI-Schnittstellen des aktuellen Projekts für Mind, Organismus, IMAGINATIO, Kartografie und Cortex.</p><div class="doc-meta"><span>Aktueller Projektstand</span><span>Code-geprüfte Dokumentation</span><span>GPL-3.0</span></div></header><div class="doc-layout"><aside class="toc"><strong>Inhalt</strong><ol><li class="level-2"><a href="#c-robotmind">C++: RobotMind</a></li><li class="level-2"><a href="#c-syntheticorganism">C++: SyntheticOrganism</a></li><li class="level-2"><a href="#c-visualimagination">C++: VisualImagination</a></li><li class="level-2"><a href="#c-cortex">C++: Cortex</a></li><li class="level-2"><a href="#c-abi">C ABI</a></li><li class="level-2"><a href="#fehlerbehandlung">Fehlerbehandlung</a></li><li class="level-2"><a href="#vertragsregel">Vertragsregel</a></li></ol></aside><main class="doc-content" id="inhalt">
+<h2 id="c-robotmind">C++: RobotMind</h2><pre><code>RobotMind mind;
+auto report = mind.observe(experience);
+mind.beginAction(action);
+mind.endAction(outcome);
+auto prediction = mind.predict();
+auto horizon = mind.predictHorizon(depth);
+auto physiology = mind.physiology();
+auto motor = mind.motor();
+mind.saveSnapshot(directory);</code></pre><p>Zusätzliche APIs decken Explorer-Frames, Scannerintegration, Identitätsbeobachtung, Kontext, Throughput, Kartenverwaltung, Ruhe, Lernschalter und experimentelle Interventionen ab.</p>
+<h2 id="c-syntheticorganism">C++: SyntheticOrganism</h2><pre><code>SyntheticOrganism organism;
+auto result = organism.stepWithLoad(experience, atmosphere, mechanicalLoad, dt);
+auto body = organism.telemetry();
+auto interoception = organism.interoception();
+organism.hemorrhage(volumeMl);
+organism.setRenalFunction(leftFraction, rightFraction);</code></pre><p>Zugriffsfunktionen liefern Mind, Kreislauf, Herz, Lunge, beide Nieren und die getrennten linken/rechten Niereninstanzen.</p>
+<h2 id="c-visualimagination">C++: VisualImagination</h2><pre><code>VisualImagination visual(sharedMind, config);
+auto learned = visual.learnToTrace(reference, label, teacherActions);
+auto recalled = visual.drawFromMemory(cue);
+visual.addCategoryExample(category, cue);
+auto fusion = visual.fuseCategories(categories);
+auto target = visual.renderLastTargetSpace(width, height);
+visual.saveSnapshot(directory);</code></pre><p>Weitere APIs umfassen Symbolassoziation, freie Zeichnung, Komposition, Pose-Lernen, Szenenwahrnehmung, Relationsszenen, gelernte Übergänge, Zukunftsimagination, Quellauflösungsmetadaten und JSON/Trace-Ausgabe.</p>
+<h2 id="c-cortex">C++: Cortex</h2><pre><code>CortexOrchestrator cortex(config);
+cortex.observe(...);
+cortex.requestExplicitAnalysis(...);
+cortex.requestExplicitImagination(...);
+cortex.requestExplicitHybrid(...);
+cortex.requestExecutivePlan(...);
+cortex.autonomousCycle(...);
+cortex.sleepCycle(...);</code></pre><h2 id="c-abi">C ABI</h2><p><code>include/tatarus/c_api.h</code> stellt Handles für Mind und Organismus bereit. Die ABI deckt Erzeugen/Zerstören, Beobachten, Explorer/Identity, Telemetrie, Action-Lifecycle, Snapshot, Organismus-Interventionen, Spatial/Live/Physiology/Throughput-JSON, Environment Map, IMAGINATIO-Lernen/Recall/Kategorie/Szene/Render und Cortex-Konfiguration/Ziele/Working-Memory/Kommandos ab.</p>
+<h2 id="fehlerbehandlung">Fehlerbehandlung</h2><p>Die C ABI liefert Statuswerte und stellt den letzten Fehler über <code>tatarus_last_error()</code> bereit. Buffer-basierte JSON-Funktionen unterstützen zunächst eine Größenabfrage und anschließend die Ausgabe in einen vom Host bereitgestellten Puffer.</p>
+<h2 id="vertragsregel">Vertragsregel</h2><p>Hostprogramme sollen keine internen Datenstrukturen rekonstruieren. Öffentliche Header und C-ABI sind die stabile Integrationsgrenze; Zustandsdetails werden über Telemetrie und JSON-Sichten gelesen.</p><div class="document-actions"><a href="../index.html">Dokumentationsstart</a><a href="../wiki/index.html">System-Wiki</a><a href="https://github.com/kruemmel-python/Tatarus-5">Repository</a></div></main></div><footer class="doc-footer">TATARUS · Synthetic Organism &amp; Embodied Intelligence SDK · GPL-3.0</footer></div></body></html>

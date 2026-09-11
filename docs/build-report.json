@@ -1,0 +1,83 @@
+{
+  "schema": "tatarus-docs-integrity",
+  "scope": "published-current-project",
+  "result": "PASS",
+  "html_files": 62,
+  "checked_internal_references": 2371,
+  "broken_internal_references": [],
+  "source_paths_checked": 16,
+  "missing_source_paths": [],
+  "current_code_contract_checks": [
+    {
+      "check": "warnings-as-errors",
+      "ok": true,
+      "source": "CMakeLists.txt"
+    },
+    {
+      "check": "optional Cortex build switch",
+      "ok": true,
+      "source": "CMakeLists.txt"
+    },
+    {
+      "check": "no persisted source raster",
+      "ok": true,
+      "source": "src/tatarus_imaginatio.cpp"
+    },
+    {
+      "check": "teacher trace transient",
+      "ok": true,
+      "source": "src/tatarus_imaginatio.cpp"
+    },
+    {
+      "check": "working canvas not persisted",
+      "ok": true,
+      "source": "src/tatarus_imaginatio.cpp"
+    },
+    {
+      "check": "self motor memory persisted in engram",
+      "ok": true,
+      "source": "src/tatarus_imaginatio.cpp"
+    },
+    {
+      "check": "target-space renderer avoids raster interpolation",
+      "ok": true,
+      "source": "src/tatarus_imaginatio.cpp"
+    },
+    {
+      "check": "bilateral kidneys are owned by organism",
+      "ok": true,
+      "source": "modules/tatarus_organism/tatarus_organism.hpp"
+    },
+    {
+      "check": "ocular pupil telemetry",
+      "ok": true,
+      "source": "include/tatarus/ocular_system.hpp"
+    },
+    {
+      "check": "vestibular nerve events",
+      "ok": true,
+      "source": "include/tatarus/vestibular_system.hpp"
+    },
+    {
+      "check": "optic nerve events",
+      "ok": true,
+      "source": "include/tatarus/visual_pathway.hpp"
+    },
+    {
+      "check": "Cortex has no direct motor authority",
+      "ok": true,
+      "source": "config/cortex_hybrid.json"
+    },
+    {
+      "check": "Cortex has no direct reward authority",
+      "ok": true,
+      "source": "config/cortex_hybrid.json"
+    }
+  ],
+  "publication_history_scan": {
+    "numbered_project_brand": [],
+    "implementation_history": [],
+    "obsolete_imaginatio_claims": []
+  },
+  "versioned_html_filenames": []
+}
