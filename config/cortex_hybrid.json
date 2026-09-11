@@ -1,0 +1,89 @@
+{
+  "enabled": true,
+  "mode": "hybrid",
+  "execution_mode": "live",
+  "provider": {
+    "type": "lm_studio",
+    "base_url": "http://127.0.0.1:1234/v1",
+    "model": "AUTO",
+    "timeout_ms": 60000,
+    "temperature": 0.2,
+    "top_p": 0.9,
+    "max_output_tokens": 768
+  },
+  "worker": {
+    "queue_capacity": 2
+  },
+  "freshness": {
+    "maximum_response_age_steps": 250
+  },
+  "trigger": {
+    "novelty": 0.7,
+    "prediction_error": 0.45,
+    "low_motor_confidence": 0.35,
+    "cooldown_steps": 250
+  },
+  "arbiter": {
+    "minimum_strategy_confidence": 0.25,
+    "maximum_strategy_risk": 0.85,
+    "minimum_accept_score": 0.18,
+    "critical_visceral_distress": 0.85,
+    "critical_brain_atp": 0.15
+  },
+  "limits": {
+    "max_strategies": 3,
+    "max_information_requests": 3,
+    "max_summary_bytes": 1024,
+    "max_rationale_bytes": 512,
+    "max_prompt_bytes": 24576
+  },
+  "safety_contract": {
+    "direct_reward": false,
+    "direct_motor_control": false,
+    "physiology_mutation": false,
+    "neuron_access": false,
+    "synapse_access": false
+  },
+  "sandbox": {
+    "maximum_branches": 8
+  },
+  "learning": {
+    "enabled": true,
+    "competence_gate_enabled": true,
+    "minimum_teaching_successes": 2,
+    "minimum_autonomous_trials": 2,
+    "autonomous_success_threshold": 0.75,
+    "outcome_success_threshold": 0.5
+  },
+  "top_down": {
+    "enabled": true,
+    "maximum_recall_strength": 0.35,
+    "maximum_goal_bias_strength": 0.2,
+    "semantic_channels": 12,
+    "semantic_gain": 0.15
+  },
+  "dream": {
+    "enabled": true,
+    "minimum_rem_interval_steps": 250,
+    "maximum_dream_symbols": 8
+  },
+  "executive": {
+    "enabled": true,
+    "maximum_goals": 8,
+    "maximum_working_memory_items": 24,
+    "maximum_plan_steps": 8,
+    "maximum_recent_outcomes": 12,
+    "working_memory_ttl_steps": 5000
+  },
+  "metacognition": {
+    "enabled": true,
+    "minimum_samples": 4,
+    "cautious_reliability_threshold": 0.65,
+    "degraded_reliability_threshold": 0.4,
+    "maximum_stale_rate": 0.35
+  },
+  "record_replay": {
+    "path": "cortex_record.bin",
+    "strict": true
+  }
+}
