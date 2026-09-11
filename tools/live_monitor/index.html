@@ -1,0 +1,3723 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>TATARUS · Synthetischer Organismus & Robotertraining</title>
+  <style>
+    :root {
+      --bg: #071018;
+      --panel: #0c1924;
+      --panel-2: #102331;
+      --line: rgba(163, 211, 230, 0.16);
+      --text: #e9f8ff;
+      --muted: #87a5b4;
+      --cyan: #59e1ff;
+      --green: #72f3b2;
+      --violet: #be9cff;
+      --amber: #ffc66b;
+      --pink: #ff7eb6;
+      --red: #ff6f7f;
+      --blue: #71a8ff;
+      --shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--text); }
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 55% -10%, rgba(44, 170, 214, 0.16), transparent 34rem),
+        linear-gradient(180deg, #08131c 0%, var(--bg) 55%);
+    }
+    button, select, input { font: inherit; }
+    button, select {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0.58rem 0.8rem;
+    }
+    button { cursor: pointer; }
+    button:hover { background: rgba(89, 225, 255, 0.1); border-color: rgba(89, 225, 255, 0.35); }
+    button.primary { background: rgba(89, 225, 255, 0.16); border-color: rgba(89, 225, 255, 0.45); }
+    button.danger:hover { background: rgba(255, 111, 127, 0.12); border-color: rgba(255, 111, 127, 0.42); }
+    button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+    .app { width: min(1700px, 100%); margin: 0 auto; padding: 18px; }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .brand-mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(145deg, rgba(89, 225, 255, 0.22), rgba(190, 156, 255, 0.14));
+      border: 1px solid rgba(89, 225, 255, 0.35);
+      box-shadow: 0 0 30px rgba(89, 225, 255, 0.12);
+    }
+    .brand-mark::before { content: "T"; color: var(--cyan); font-weight: 700; }
+    h1 { font-size: clamp(1rem, 2.4vw, 1.4rem); font-weight: 650; margin: 0; letter-spacing: 0.01em; }
+    .subtitle { margin-top: 3px; color: var(--muted); font-size: 0.78rem; }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      padding: 0.45rem 0.65rem;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.035);
+      white-space: nowrap;
+      font-size: 0.78rem;
+    }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 12px currentColor; }
+    .status.live .status-dot { background: var(--green); }
+    .status.error .status-dot { background: var(--red); }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      gap: 9px;
+      margin-bottom: 12px;
+    }
+    .metric, .panel {
+      background: linear-gradient(180deg, rgba(16, 35, 49, 0.88), rgba(10, 24, 35, 0.9));
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+    }
+    .metric { padding: 11px 13px; min-width: 0; }
+    .metric-label { color: var(--muted); font-size: 0.69rem; text-transform: uppercase; letter-spacing: 0.08em; }
+    .metric-value { margin-top: 5px; font-size: clamp(1rem, 2.1vw, 1.42rem); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .metric-unit { color: var(--muted); font-size: 0.7rem; margin-left: 3px; }
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 286px;
+      gap: 12px;
+      min-height: 690px;
+    }
+    .viewport-panel { position: relative; min-width: 0; overflow: hidden; }
+    .scene-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+    }
+    .scene-toolbar .spacer { flex: 1; }
+    .field { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: 0.75rem; }
+    .canvas-wrap {
+      position: relative;
+      height: 635px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 42%, rgba(44, 170, 214, 0.11), transparent 42%),
+        linear-gradient(180deg, rgba(4, 13, 20, 0.28), rgba(3, 10, 16, 0.82));
+    }
+    #scene { width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
+    #scene:active { cursor: grabbing; }
+    .scene-note {
+      position: absolute;
+      left: 12px;
+      bottom: 10px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      pointer-events: none;
+    }
+    .layers {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      max-width: calc(100% - 24px);
+    }
+    .layer {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0.42rem 0.58rem;
+      border-radius: 999px;
+      background: rgba(7, 16, 24, 0.78);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.7rem;
+      backdrop-filter: blur(10px);
+    }
+    .layer input { accent-color: var(--cyan); margin: 0; }
+    .sidebar { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+    .sidebar-section { padding: 14px; }
+    .sidebar-section h2 { margin: 0 0 11px; font-size: 0.82rem; font-weight: 650; letter-spacing: 0.04em; }
+    .data-list { display: grid; gap: 9px; }
+    .data-row { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; font-size: 0.76rem; }
+    .data-row span:first-child { color: var(--muted); }
+    .data-row strong { font-weight: 550; font-variant-numeric: tabular-nums; text-align: right; }
+    .bar { height: 4px; border-radius: 999px; overflow: hidden; background: rgba(255, 255, 255, 0.06); margin-top: 4px; }
+    .bar > i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--cyan), var(--violet)); transition: width 160ms ease; }
+    .selection { min-height: 145px; color: var(--muted); font-size: 0.76rem; line-height: 1.55; }
+    .selection strong { color: var(--text); font-weight: 600; }
+    .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.69rem; color: var(--muted); }
+    .legend span { display: flex; align-items: center; gap: 6px; }
+    .swatch { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
+    .robot-section { margin-top: 14px; }
+    .robot-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .robot-heading h2 { margin: 0; font-size: 1rem; font-weight: 650; }
+    .robot-heading p { margin: 3px 0 0; color: var(--muted); font-size: 0.76rem; }
+    .robot-workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 286px;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .robot-map-panel { min-width: 0; overflow: hidden; }
+    .robot-canvas-wrap {
+      position: relative;
+      height: 560px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 45% 30%, rgba(114, 243, 178, 0.10), transparent 40%),
+        linear-gradient(180deg, rgba(4, 13, 20, 0.35), rgba(3, 10, 16, 0.88));
+    }
+    #robot-canvas { width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; }
+    #robot-canvas:active { cursor: grabbing; }
+    #robot-canvas.editing, #robot-canvas.editing:active { cursor: crosshair; }
+    .map-editor {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(89, 225, 255, 0.035);
+    }
+    .map-editor[hidden] { display: none; }
+    .map-editor input {
+      min-width: 170px;
+      color: var(--text);
+      background: rgba(255,255,255,.055);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: .58rem .7rem;
+    }
+    .map-tool.active {
+      color: #06151c;
+      background: var(--cyan);
+      border-color: var(--cyan);
+    }
+    .map-editor-status { flex: 1 1 220px; color: var(--muted); font-size: .72rem; }
+    .robot-overlay {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      pointer-events: none;
+    }
+    .robot-chip {
+      padding: 0.42rem 0.58rem;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(7, 16, 24, 0.80);
+      color: var(--muted);
+      font-size: 0.7rem;
+      backdrop-filter: blur(10px);
+    }
+    .robot-chip strong { color: var(--text); font-weight: 600; }
+    .route-legend { display: grid; gap: 9px; color: var(--muted); font-size: 0.72rem; }
+    .route-legend span { display: flex; align-items: center; gap: 8px; }
+    .route-line { width: 24px; height: 3px; border-radius: 999px; background: var(--cyan); }
+    .route-line.learned { background: var(--violet); }
+    .route-line.explored { background: rgba(114, 243, 178, 0.55); }
+    .lab-section { margin-top: 14px; }
+    .lab-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .lab-card { padding: 16px; min-width: 0; }
+    .lab-card h3 { margin: 0 0 5px; font-size: 0.9rem; }
+    .lab-card > p { margin: 0 0 14px; color: var(--muted); font-size: 0.73rem; line-height: 1.5; }
+    .lab-fields { display: grid; gap: 10px; }
+    .lab-fields label { display: grid; gap: 5px; color: var(--muted); font-size: 0.72rem; }
+    .lab-fields select, .lab-fields input { width: 100%; }
+    .lab-fields input {
+      color: var(--text); background: rgba(255,255,255,.055); border: 1px solid var(--line);
+      border-radius: 10px; padding: .58rem .7rem;
+    }
+    .button-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .safety-state { display: grid; grid-template-columns: 1fr auto; gap: 8px; font-size: .74rem; }
+    .safety-state span:nth-child(odd) { color: var(--muted); }
+    .timeline-card { grid-column: span 2; }
+    #timeline-canvas { width: 100%; height: 190px; display: block; border: 1px solid var(--line); border-radius: 10px; background: rgba(3,10,16,.55); }
+    .timeline-legend { display: flex; flex-wrap: wrap; gap: 14px; color: var(--muted); font-size: .69rem; margin-top: 8px; }
+    .result-grid { display: grid; grid-template-columns: 1fr auto; gap: 7px 12px; font-size: .72rem; max-height: 210px; overflow: auto; }
+    .result-grid span:nth-child(odd) { color: var(--muted); }
+    .progress { height: 7px; margin-top: 10px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,.06); }
+    .progress i { display: block; width: 0; height: 100%; background: linear-gradient(90deg,var(--cyan),var(--violet)); transition: width .2s ease; }
+    .error-banner { display: none; padding: 10px 12px; margin-bottom: 12px; border: 1px solid rgba(255, 111, 127, 0.4); color: #ffd6dc; background: rgba(255, 111, 127, 0.09); border-radius: 12px; font-size: 0.78rem; }
+    .error-banner.visible { display: block; }
+
+    .integrated-imaginatio-section { margin-top: 14px; }
+    .integrated-imaginatio-shell { padding: 0; overflow: hidden; }
+    .integrated-imaginatio-heading {
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      padding: 14px 16px; border-bottom: 1px solid var(--line);
+    }
+    .integrated-imaginatio-heading h2 { margin: 0; font-size: 1rem; font-weight: 650; }
+    .integrated-imaginatio-heading p { margin: 3px 0 0; color: var(--muted); font-size: .76rem; }
+    .integrated-imaginatio-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    #integrated-imaginatio-frame {
+      display: block; width: 100%; height: 1450px; border: 0; background: #050b11;
+    }
+    /* The former 32x32 dashboard drawlab is retained only as a compatibility
+       DOM for the old inline instrumentation code. The visible studio below is
+       the authoritative IMAGINATIO V14 + Cortex UI. */
+    .legacy-drawlab { display: none !important; }
+
+    .organism-section { margin-top: 14px; }
+    .organism-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .organ-card {
+      padding: 16px;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border: 1px solid var(--line);
+    }
+    .organ-card.highlight {
+      border-color: rgba(89, 225, 255, 0.38);
+      box-shadow: 0 0 24px rgba(89, 225, 255, 0.08);
+    }
+    .organ-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .organ-card-header h3 {
+      margin: 0;
+      font-size: 0.92rem;
+      font-weight: 650;
+      color: var(--cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .valve-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .valve-badge {
+      padding: 4px 6px;
+      border-radius: 6px;
+      font-size: 0.65rem;
+      text-align: center;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .valve-badge.open {
+      background: rgba(114, 243, 178, 0.18);
+      border-color: rgba(114, 243, 178, 0.55);
+      color: var(--green);
+      box-shadow: 0 0 10px rgba(114, 243, 178, 0.2);
+    }
+    .chambers-mini {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+    .chamber-box {
+      padding: 7px 9px;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(163, 211, 230, 0.1);
+      font-size: 0.72rem;
+    }
+    .chamber-box strong {
+      font-variant-numeric: tabular-nums;
+      color: var(--text);
+    }
+    .autonomic-bar {
+      display: flex;
+      height: 8px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.08);
+      margin-top: 4px;
+    }
+    .autonomic-symp { background: var(--pink); height: 100%; transition: width 0.2s ease; }
+    .autonomic-para { background: var(--cyan); height: 100%; transition: width 0.2s ease; }
+    .drawlab-section { margin-top: 14px; }
+    .drawlab-heading-note {
+      display: inline-flex; align-items: center; gap: 7px; color: var(--green);
+      font-size: .69rem; border: 1px solid rgba(114,243,178,.3);
+      background: rgba(114,243,178,.07); border-radius: 999px; padding: .42rem .62rem;
+    }
+    .causal-flow {
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px;
+      padding: 12px; margin-top: 12px;
+    }
+    .causal-step {
+      position: relative; min-height: 70px; padding: 11px 12px; border-radius: 11px;
+      border: 1px solid var(--line); background: rgba(3,10,16,.42); color: var(--muted);
+      transition: border-color .16s ease, background .16s ease, transform .16s ease;
+    }
+    .causal-step:not(:last-child)::after {
+      content: "→"; position: absolute; right: -9px; top: 23px; z-index: 2;
+      color: var(--cyan); background: var(--panel); padding: 0 2px;
+    }
+    .causal-step strong { display: block; color: var(--text); font-size: .76rem; margin-bottom: 5px; }
+    .causal-step span { font-size: .68rem; line-height: 1.35; }
+    .causal-step.active { border-color: var(--cyan); background: rgba(89,225,255,.11); transform: translateY(-2px); }
+    .drawlab-grid {
+      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px;
+    }
+    .drawlab-card { padding: 16px; min-width: 0; overflow: hidden; }
+    .drawlab-card h3 { margin: 0; font-size: .92rem; }
+    .drawlab-card .card-kicker { color: var(--cyan); font-size: .65rem; letter-spacing: .11em; text-transform: uppercase; margin-bottom: 5px; }
+    .drawlab-card > p { color: var(--muted); font-size: .72rem; line-height: 1.5; margin: 6px 0 13px; }
+    .drawing-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .drawing-board { min-width: 0; }
+    .drawing-board label { display: flex; justify-content: space-between; color: var(--muted); font-size: .69rem; margin-bottom: 6px; }
+    .drawing-canvas-shell {
+      position: relative; aspect-ratio: 1; width: 100%; max-height: 330px; overflow: hidden;
+      border: 1px solid rgba(89,225,255,.24); border-radius: 12px;
+      background: #02080d; box-shadow: inset 0 0 45px rgba(89,225,255,.04);
+    }
+    .drawing-canvas-shell canvas { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+    #drawlab-target { cursor: crosshair; touch-action: none; }
+    .draw-cursor {
+      position: absolute; width: 12px; height: 12px; border: 2px solid var(--amber);
+      border-radius: 50%; box-shadow: 0 0 10px var(--amber); pointer-events: none;
+      transform: translate(-50%,-50%); transition: left .08s linear, top .08s linear;
+    }
+    .drawlab-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .drawlab-toolbar .field { flex: 1 1 180px; }
+    .drawlab-toolbar select { flex: 1; min-width: 130px; }
+    .retina-wrap { display: flex; align-items: center; gap: 9px; margin-top: 10px; color: var(--muted); font-size: .68rem; }
+    .retina-grid { display: grid; grid-template-columns: repeat(4, 16px); gap: 3px; }
+    .retina-cell { width: 16px; height: 16px; border: 1px solid rgba(255,255,255,.09); border-radius: 3px; background: #02080d; }
+    .neural-readout { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+    .neural-tile { padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: rgba(3,10,16,.35); }
+    .neural-tile span { display: block; color: var(--muted); font-size: .66rem; }
+    .neural-tile strong { display: block; margin-top: 4px; font-size: .91rem; font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; }
+    .cause-readout { margin: 11px 0; padding: 10px 11px; border-left: 3px solid var(--violet); background: rgba(190,156,255,.06); border-radius: 0 9px 9px 0; }
+    .cause-readout strong { display: block; font-size: .75rem; }
+    .cause-readout span { display: block; margin-top: 4px; color: var(--muted); font-size: .68rem; line-height: 1.4; }
+    .motor-populations { display: grid; gap: 6px; }
+    .motor-population { display: grid; grid-template-columns: 42px 1fr 46px; gap: 7px; align-items: center; font-size: .67rem; color: var(--muted); }
+    .motor-population strong { color: var(--text); text-align: right; font-variant-numeric: tabular-nums; }
+    .lab-control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .lab-control-grid label { display: grid; gap: 5px; color: var(--muted); font-size: .69rem; }
+    .lab-control-grid input {
+      width: 100%; color: var(--text); background: rgba(255,255,255,.055);
+      border: 1px solid var(--line); border-radius: 10px; padding: .58rem .7rem;
+    }
+    .drawlab-actions { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; margin-top: 12px; }
+    .drawlab-actions button { text-align: left; }
+    .drawlab-actions button small { display: block; color: var(--muted); margin-top: 3px; font-size: .63rem; }
+    .drawlab-actions button:disabled { opacity: .45; cursor: wait; }
+    .analysis-metrics { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 8px; }
+    .analysis-metric { padding: 9px; border-radius: 9px; background: rgba(3,10,16,.4); border: 1px solid var(--line); }
+    .analysis-metric span { display: block; color: var(--muted); font-size: .62rem; }
+    .analysis-metric strong { display: block; font-size: 1rem; margin-top: 3px; font-variant-numeric: tabular-nums; }
+    #drawlab-histogram { width: 100%; height: 112px; margin-top: 12px; border-radius: 9px; background: rgba(3,10,16,.4); border: 1px solid var(--line); }
+    .trace-controls { display: flex; gap: 8px; align-items: center; margin: 10px 0; }
+    .trace-controls label { color: var(--muted); font-size: .68rem; }
+    .causal-events { max-height: 170px; overflow: auto; display: grid; gap: 5px; padding-right: 4px; }
+    .causal-event { display: grid; grid-template-columns: 38px 1fr auto; gap: 8px; align-items: center; padding: 7px 8px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); font-size: .66rem; }
+    .causal-event.current { border-color: var(--cyan); background: rgba(89,225,255,.08); }
+    .causal-event strong { color: var(--text); font-weight: 600; }
+    .drawlab-statusline { color: var(--muted); font-size: .7rem; min-height: 1.4em; margin-top: 10px; }
+    @media (max-width: 1100px) {
+      .metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .workspace { grid-template-columns: 1fr; }
+      .robot-workspace { grid-template-columns: 1fr; }
+      .drawlab-grid { grid-template-columns: 1fr; }
+      .lab-grid { grid-template-columns: 1fr 1fr; }
+      .timeline-card { grid-column: span 2; }
+      .sidebar { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .canvas-wrap { height: 590px; }
+      .robot-canvas-wrap { height: 520px; }
+    }
+    @media (max-width: 720px) {
+      .app { padding: 10px; }
+      .topbar { align-items: flex-start; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .scene-toolbar { align-items: stretch; }
+      .scene-toolbar button, .scene-toolbar .field { flex: 1 1 auto; justify-content: center; }
+      .canvas-wrap { height: 500px; }
+      .robot-canvas-wrap { height: 430px; }
+      .sidebar { grid-template-columns: 1fr; }
+      .lab-grid { grid-template-columns: 1fr; }
+      .timeline-card { grid-column: span 1; }
+      .causal-flow { grid-template-columns: 1fr; }
+      .causal-step:not(:last-child)::after { content: "↓"; right: 14px; top: auto; bottom: -12px; }
+      .drawing-pair { grid-template-columns: 1fr; }
+      .analysis-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .status span:last-child { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <div>
+          <h1>TATARUS · Synthetischer Organismus & Robotertraining</h1>
+          <div class="subtitle">Gekoppeltes Live-Modell · Nervensystem · Herz · Lunge · Niere · Kreislauf · Seed <span id="seed-label">7411</span></div>
+        </div>
+      </div>
+      <div id="connection-status" class="status" role="status">
+        <i class="status-dot" aria-hidden="true"></i>
+        <span id="status-label">Verbindung wird aufgebaut</span>
+      </div>
+    </header>
+
+    <div id="error-banner" class="error-banner" role="alert"></div>
+
+    <section class="metrics" aria-label="Nervensystem-Live-Kennzahlen">
+      <div class="metric"><div class="metric-label">Trainingsschritt</div><div class="metric-value" id="m-step">—</div></div>
+      <div class="metric"><div class="metric-label">Erfahrungen</div><div class="metric-value" id="m-experiences">—</div></div>
+      <div class="metric"><div class="metric-label">Spikes</div><div class="metric-value" id="m-spikes">—</div></div>
+      <div class="metric"><div class="metric-label">Synapsen</div><div class="metric-value" id="m-synapses">—</div></div>
+      <div class="metric"><div class="metric-label">Myelin</div><div class="metric-value"><span id="m-myelin">—</span><span class="metric-unit">%</span></div></div>
+      <div class="metric"><div class="metric-label">Delay</div><div class="metric-value"><span id="m-delay">—</span><span class="metric-unit">ms</span></div></div>
+      <div class="metric"><div class="metric-label">Gehirn-ATP</div><div class="metric-value"><span id="m-atp">—</span><span class="metric-unit">%</span></div></div>
+      <div class="metric"><div class="metric-label">Zustand</div><div class="metric-value" id="m-sleep">—</div></div>
+    </section>
+
+    <section class="metrics" style="margin-top:-3px;margin-bottom:14px" aria-label="Organismus-Live-Kennzahlen">
+      <div class="metric"><div class="metric-label">Puls (HR)</div><div class="metric-value"><span id="top-hr">—</span><span class="metric-unit">bpm</span></div></div>
+      <div class="metric"><div class="metric-label">Blutdruck (MAP)</div><div class="metric-value"><span id="top-map">—</span><span class="metric-unit">mmHg</span></div></div>
+      <div class="metric"><div class="metric-label">Sauerstoff (SaO2)</div><div class="metric-value"><span id="top-sao2">—</span><span class="metric-unit">%</span></div></div>
+      <div class="metric"><div class="metric-label">Herzminutenvolumen</div><div class="metric-value"><span id="top-co">—</span><span class="metric-unit">L/min</span></div></div>
+      <div class="metric"><div class="metric-label">Atemfrequenz (RR)</div><div class="metric-value"><span id="top-rr">—</span><span class="metric-unit">/min</span></div></div>
+      <div class="metric"><div class="metric-label">Nieren (GFR)</div><div class="metric-value"><span id="top-gfr">—</span><span class="metric-unit">mL/min</span></div></div>
+      <div class="metric"><div class="metric-label">Urinausscheidung</div><div class="metric-value"><span id="top-urine">—</span><span class="metric-unit">mL/min</span></div></div>
+      <div class="metric"><div class="metric-label">Viszeraler Distress</div><div class="metric-value" id="top-distress">—</div></div>
+    </section>
+
+    <section class="workspace">
+      <div class="panel viewport-panel">
+        <div class="scene-toolbar">
+          <button id="pause-button" class="primary" type="button">Roboter & Organismus pausieren</button>
+          <button id="camera-button" type="button">Kamera zurücksetzen</button>
+          <button id="zoom-in-button" type="button" aria-label="In die aktuelle Organansicht hineinzoomen">Ansicht +</button>
+          <button id="zoom-out-button" type="button" aria-label="Aus der aktuellen Organansicht herauszoomen">Ansicht −</button>
+          <button id="reset-button" class="danger" type="button">Gesamtes Training neu starten</button>
+          <span class="spacer"></span>
+          <label class="field" for="view-focus-select">3D-Fokus
+            <select id="view-focus-select">
+              <option value="organism" selected>🫀 Gesamter Organismus</option>
+              <option value="brain">🧠 Gehirn & Neurone</option>
+              <option value="heart">❤️ Herz & 4 Kammern</option>
+              <option value="lungs">🫁 Lunge & Respiration</option>
+              <option value="kidneys">🧪 Nieren & Gefäße</option>
+            </select>
+          </label>
+          <label class="field" for="tissue-profile-select">Gewebegröße
+            <select id="tissue-profile-select">
+              <option value="compact">Kompakt · 96</option>
+              <option value="standard" selected>Standard · 384</option>
+              <option value="large">Groß · 1.536</option>
+              <option value="research">Forschung · 6.144</option>
+            </select>
+          </label>
+          <label class="field" for="speed-select">Geschwindigkeit
+            <select id="speed-select">
+              <option value="0.5">0,5×</option>
+              <option value="1" selected>1×</option>
+              <option value="2">2×</option>
+              <option value="4">4×</option>
+              <option value="8">8×</option>
+            </select>
+          </label>
+          <label class="field" for="color-select">Färbung
+            <select id="color-select">
+              <option value="activity" selected>Aktivität</option>
+              <option value="ions">K⁺-Milieu</option>
+              <option value="atp">ATP</option>
+              <option value="subtype">Zelltyp</option>
+            </select>
+          </label>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="scene" aria-label="Live-3D-Modell des laufenden TATARUS-Organismus"></canvas>
+          <div class="layers" aria-label="Sichtbare Strukturen">
+            <label class="layer"><input type="checkbox" data-layer="dendrites" checked> Dendriten</label>
+            <label class="layer"><input type="checkbox" data-layer="axons" checked> Axone</label>
+            <label class="layer"><input type="checkbox" data-layer="signals" checked> Signale</label>
+            <label class="layer"><input type="checkbox" data-layer="ecs"> Extrazellulärraum</label>
+            <label class="layer"><input type="checkbox" data-layer="astrocytes"> Astrozyten</label>
+            <label class="layer"><input type="checkbox" data-layer="tissue" checked> Gehirn</label>
+            <label class="layer" style="border-color:rgba(255,111,127,0.5);color:#ff9fa8"><input type="checkbox" data-layer="heart3d" checked> ❤️ Herz (3D)</label>
+            <label class="layer" style="border-color:rgba(255,198,107,0.5);color:#ffd899"><input type="checkbox" data-layer="lungs3d" checked> 🫁 Lunge (3D)</label>
+            <label class="layer" style="border-color:rgba(190,156,255,0.5);color:#d9c2ff"><input type="checkbox" data-layer="kidneys3d" checked> 🧪 Nieren (3D)</label>
+            <label class="layer" style="border-color:rgba(89,225,255,0.5);color:#8cebff"><input type="checkbox" data-layer="vessels3d" checked> 🩸 Gefäße (3D)</label>
+          </div>
+          <div class="scene-note">Ziehen: 3D-Organismus drehen · Mausrad: zoomen · 3D-Fokus umschalten</div>
+        </div>
+      </div>
+
+      <aside class="sidebar">
+        <section class="panel sidebar-section">
+          <h2>Biologischer Zustand</h2>
+          <div class="data-list">
+            <div><div class="data-row"><span>Sauerstoff</span><strong id="b-oxygen">—</strong></div><div class="bar"><i id="bar-oxygen"></i></div></div>
+            <div><div class="data-row"><span>Glukose</span><strong id="b-glucose">—</strong></div><div class="bar"><i id="bar-glucose"></i></div></div>
+            <div><div class="data-row"><span>Energie</span><strong id="b-energy">—</strong></div><div class="bar"><i id="bar-energy"></i></div></div>
+            <div><div class="data-row"><span>Oligo-Reserve</span><strong id="b-reserve">—</strong></div><div class="bar"><i id="bar-reserve"></i></div></div>
+            <div class="data-row"><span>Leitung</span><strong id="b-velocity">—</strong></div>
+            <div class="data-row"><span>Mikroglia</span><strong id="b-micro">—</strong></div>
+            <div class="data-row"><span>Dendritenspikes</span><strong id="b-dspikes">—</strong></div>
+          </div>
+        </section>
+
+        <section class="panel sidebar-section">
+          <h2>Gewebewachstum & Mechanik</h2>
+          <div class="data-list">
+            <div><div class="data-row"><span>Gewebevolumen</span><strong id="g-volume">—</strong></div><div class="bar"><i id="bar-growth"></i></div></div>
+            <div class="data-row"><span>Lineare Ausdehnung</span><strong id="g-linear">—</strong></div>
+            <div class="data-row"><span>Effektive Masse / Änderung</span><strong id="g-mass">—</strong></div>
+            <div class="data-row"><span>Packungsdichte</span><strong id="g-packing">—</strong></div>
+            <div class="data-row"><span>Extrazellulärraum</span><strong id="g-ecs">—</strong></div>
+            <div class="data-row"><span>Gewebedruck</span><strong id="g-pressure">—</strong></div>
+            <div><div class="data-row"><span>Baumaterialreserve</span><strong id="g-material">—</strong></div><div class="bar"><i id="bar-material"></i></div></div>
+            <div class="data-row"><span>Synapsen Ausgang / aktuell</span><strong id="g-synapses">—</strong></div>
+            <div class="data-row"><span>Begrenzte Wachstumsschritte</span><strong id="g-limited">—</strong></div>
+          </div>
+        </section>
+
+        <section class="panel sidebar-section">
+          <h2>Neuronale Gewebephysiologie</h2>
+          <div class="data-list">
+            <div><div class="data-row"><span>ATP</span><strong id="x-atp">—</strong></div><div class="bar"><i id="bar-atp"></i></div></div>
+            <div><div class="data-row"><span>Na/K-Pumpe</span><strong id="x-pump">—</strong></div><div class="bar"><i id="bar-pump"></i></div></div>
+            <div class="data-row"><span>ECS K⁺</span><strong id="x-k">—</strong></div>
+            <div class="data-row"><span>ECS Ca²⁺</span><strong id="x-ca">—</strong></div>
+            <div class="data-row"><span>Schlafphase</span><strong id="x-sleep">—</strong></div>
+            <div class="data-row"><span>Zirkadian</span><strong id="x-clock">—</strong></div>
+            <div class="data-row"><span>Glymphatik</span><strong id="x-glymph">—</strong></div>
+            <div class="data-row"><span>CREB / Protein</span><strong id="x-creb">—</strong></div>
+            <div class="data-row"><span>Synapsen-Tags</span><strong id="x-tags">—</strong></div>
+            <div class="data-row"><span>Gamma / Theta</span><strong id="x-rhythm">—</strong></div>
+          </div>
+        </section>
+
+        <section class="panel sidebar-section">
+          <h2>Auswahl</h2>
+          <div id="selection" class="selection">Klicke ein Soma im 3D-Modell an.</div>
+        </section>
+
+        <section class="panel sidebar-section">
+          <h2>Populationen</h2>
+          <div class="legend">
+            <span><i class="swatch" style="background:#59e1ff"></i>Sensorisch</span>
+            <span><i class="swatch" style="background:#72f3b2"></i>Exzitatorisch</span>
+            <span><i class="swatch" style="background:#ff7eb6"></i>Inhibitorisch</span>
+            <span><i class="swatch" style="background:#be9cff"></i>Kontext</span>
+            <span><i class="swatch" style="background:#ffc66b"></i>Motorisch</span>
+            <span><i class="swatch" style="background:#71a8ff"></i>Modulatorisch</span>
+            <span><i class="swatch" style="background:#ff506e"></i>PV</span>
+            <span><i class="swatch" style="background:#f5a65b"></i>SST</span>
+            <span><i class="swatch" style="background:#d884ff"></i>VIP</span>
+          </div>
+          <div class="data-list" style="margin-top:12px">
+            <div class="data-row"><span>Assembly</span><strong id="p-assembly">—</strong></div>
+            <div class="data-row"><span>Vorhersage</span><strong id="p-prediction">—</strong></div>
+            <div class="data-row"><span>Konfidenz</span><strong id="p-confidence">—</strong></div>
+            <div class="data-row"><span>Überraschung</span><strong id="p-surprise">—</strong></div>
+            <div class="data-row"><span>Motorbefehl</span><strong id="p-motor">—</strong></div>
+            <div class="data-row"><span>Motor-Konfidenz</span><strong id="p-motor-confidence">—</strong></div>
+          </div>
+        </section>
+      </aside>
+    </section>
+
+    <section class="robot-section" aria-labelledby="robot-title">
+      <div class="panel robot-heading">
+        <div>
+          <h2 id="robot-title">Robotertraining · 3D-Navigationskarte</h2>
+          <p>Das oben dargestellte Nervensystem ist der Live-Zustand des Roboters. Uhr, Pause, Reset, Sensorik, Handlung und Lernen bilden einen gemeinsamen Kreislauf.</p>
+        </div>
+        <div id="robot-route-status" class="status"><i class="status-dot" aria-hidden="true"></i><span>Wegsuche startet</span></div>
+      </div>
+
+      <div class="robot-workspace">
+        <div class="panel robot-map-panel">
+          <div class="scene-toolbar">
+            <button id="robot-camera-button" type="button">Kamera zurücksetzen</button>
+            <label class="field" for="robot-map-select">Testkarte
+              <select id="robot-map-select" aria-label="Eine von zehn Karten auswählen">
+                <option value="map-1">Karte 1</option>
+              </select>
+            </label>
+            <button id="robot-edit-toggle" type="button" aria-expanded="false">Karte bearbeiten</button>
+            <button id="robot-evaluation-toggle" type="button">Testmodus starten</button>
+            <span class="spacer"></span>
+            <span class="field" id="active-map-label">Karte wird geladen</span>
+          </div>
+          <div id="robot-map-editor" class="map-editor" hidden>
+            <span class="field">Klick-Werkzeug</span>
+            <button class="map-tool active" data-map-tool="obstacle" type="button">Hindernis setzen</button>
+            <button class="map-tool" data-map-tool="erase" type="button">Zelle freigeben</button>
+            <button class="map-tool" data-map-tool="start" type="button">Start setzen</button>
+            <button class="map-tool" data-map-tool="goal" type="button">Ziel setzen</button>
+            <input id="robot-map-name" maxlength="60" aria-label="Name der Karte" placeholder="Kartenname">
+            <button id="robot-map-rename" type="button">Umbenennen</button>
+            <button id="robot-map-reset" class="danger" type="button">Standard wiederherstellen</button>
+            <span id="robot-map-editor-status" class="map-editor-status">Das Training wird beim Bearbeiten pausiert. Klicke danach direkt auf eine Zelle.</span>
+          </div>
+          <div class="robot-canvas-wrap">
+            <canvas id="robot-canvas" aria-label="Live-3D-Karte des trainierenden Roboters mit Hindernissen, Fahrspur und gelernter Route"></canvas>
+            <div class="robot-overlay" aria-hidden="true">
+              <span class="robot-chip">Episode <strong id="r-overlay-episode">—</strong></span>
+              <span class="robot-chip">Schritt <strong id="r-overlay-step">—</strong></span>
+              <span class="robot-chip">Aktion <strong id="r-overlay-action">—</strong></span>
+              <span class="robot-chip">Belohnung <strong id="r-overlay-reward">—</strong></span>
+              <span class="robot-chip">Map <strong id="r-overlay-map">—</strong></span>
+            </div>
+            <div id="robot-scene-note" class="scene-note">Ziehen: Karte drehen · Mausrad: zoomen · Cyan: tatsächlich gefahren · Violett: historisch beste, schleifenbereinigte Erfolgsroute</div>
+          </div>
+        </div>
+
+        <aside class="sidebar">
+          <section class="panel sidebar-section">
+            <h2>Lernfortschritt</h2>
+            <div class="data-list">
+              <div class="data-row"><span>Episode</span><strong id="r-episode">—</strong></div>
+              <div class="data-row"><span>Ziel erreicht</span><strong id="r-successes">—</strong></div>
+              <div><div class="data-row"><span>Karte erkundet</span><strong id="r-explored">—</strong></div><div class="bar"><i id="bar-r-explored"></i></div></div>
+              <div class="data-row"><span>Sensor-Matrix</span><strong id="r-map-voxels">—</strong></div>
+              <div class="data-row"><span>Als frei erkannt</span><strong id="r-map-free">—</strong></div>
+              <div class="data-row"><span>Als belegt erkannt</span><strong id="r-map-occupied">—</strong></div>
+              <div class="data-row"><span>Semantische Funde</span><strong id="r-map-semantics">—</strong></div>
+              <div class="data-row"><span>Kollisionen</span><strong id="r-collisions">—</strong></div>
+              <div class="data-row"><span>Direkte Rückfahrten</span><strong id="r-backtracks">—</strong></div>
+              <div class="data-row"><span>Erkannte Schleifen</span><strong id="r-loops">—</strong></div>
+              <div class="data-row"><span>Verhinderte Pendelschleifen</span><strong id="r-cycle-preventions">—</strong></div>
+              <div class="data-row"><span>Wiederholungsanteil</span><strong id="r-revisit-ratio">—</strong></div>
+              <div class="data-row"><span>Beste Route</span><strong id="r-best">—</strong></div>
+              <div class="data-row"><span>Kürzeste Route</span><strong id="r-shortest">—</strong></div>
+              <div><div class="data-row"><span>Routeneffizienz</span><strong id="r-efficiency">—</strong></div><div class="bar"><i id="bar-r-efficiency"></i></div></div>
+              <div class="data-row"><span id="r-epsilon-label">Exploration ε</span><strong id="r-epsilon">—</strong></div>
+            </div>
+          </section>
+
+          <section class="panel sidebar-section">
+            <h2>Robotersensorik</h2>
+            <div class="data-list">
+              <div class="data-row"><span>Abstand vorne</span><strong id="r-front">—</strong></div>
+              <div class="data-row"><span>Abstand links</span><strong id="r-left">—</strong></div>
+              <div class="data-row"><span>Abstand rechts</span><strong id="r-right">—</strong></div>
+              <div><div class="data-row"><span>Ziellicht</span><strong id="r-light">—</strong></div><div class="bar"><i id="bar-r-light"></i></div></div>
+              <div><div class="data-row"><span>Batterie</span><strong id="r-battery">—</strong></div><div class="bar"><i id="bar-r-battery"></i></div></div>
+              <div class="data-row"><span>Letzte Belohnung</span><strong id="r-reward">—</strong></div>
+            </div>
+          </section>
+
+          <section class="panel sidebar-section">
+            <h2>Neuronale Motorsteuerung</h2>
+            <div class="data-list">
+              <div class="data-row"><span>Steuerquelle</span><strong id="r-control">Nervensystem</strong></div>
+              <div class="data-row"><span>Motor Nord</span><strong id="r-motor-n">—</strong></div>
+              <div class="data-row"><span>Motor Ost</span><strong id="r-motor-e">—</strong></div>
+              <div class="data-row"><span>Motor Süd</span><strong id="r-motor-s">—</strong></div>
+              <div class="data-row"><span>Motor West</span><strong id="r-motor-w">—</strong></div>
+              <div class="data-row"><span>Aktives Assembly</span><strong id="r-assembly">—</strong></div>
+              <div class="data-row"><span>Vorhersage</span><strong id="r-prediction">—</strong></div>
+              <div class="data-row"><span>Konfidenz</span><strong id="r-confidence">—</strong></div>
+              <div class="data-row"><span>Vorhersagefehler</span><strong id="r-error">—</strong></div>
+              <div class="data-row"><span>Orts-Engramme</span><strong id="r-place-engrams">—</strong></div>
+              <div class="data-row"><span>Ortsvertrautheit</span><strong id="r-place-familiarity">—</strong></div>
+              <div class="data-row"><span>Besuche dieses Zustands</span><strong id="r-place-visits">—</strong></div>
+              <div class="data-row"><span>Gedächtnisrichtung</span><strong id="r-memory-direction">—</strong></div>
+              <div class="data-row"><span>Gedächtniskonfidenz</span><strong id="r-memory-confidence">—</strong></div>
+              <div class="data-row"><span>Gespeicherte Fehlpfade</span><strong id="r-failed-paths">—</strong></div>
+              <div class="data-row"><span>Vermeidungsstärke</span><strong id="r-avoidance">—</strong></div>
+              <div class="data-row"><span>Sicherheitsstatus</span><strong id="r-safety">—</strong></div>
+              <div class="data-row"><span>Schutzeingriffe</span><strong id="r-safety-count">—</strong></div>
+            </div>
+            <div class="route-legend" style="margin-top:14px">
+              <span><i class="route-line"></i>Tatsächlich gefahren</span>
+              <span><i class="route-line learned"></i>Neuronale Erfolgsroute</span>
+              <span><i class="route-line explored"></i>Erkundete Zellen</span>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </section>
+
+    <section class="drawlab-section legacy-drawlab" aria-labelledby="drawlab-title" aria-hidden="true">
+      <div class="panel robot-heading">
+        <div>
+          <h2 id="drawlab-title">KI-Zeichenlabor · Sehen → Nervensystem → Handlung → Linie</h2>
+          <p>Eine visuell-motorische Lernumwelt des laufenden Organismus. Keine Diffusion, kein GAN, kein VAE, kein Transformer und kein paralleler Pixelgenerator.</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+          <span class="drawlab-heading-note">● dasselbe Nervensystem</span>
+          <div id="drawlab-status" class="status"><i class="status-dot" aria-hidden="true"></i><span>Labor wird verbunden</span></div>
+        </div>
+      </div>
+
+      <div class="panel causal-flow" aria-label="Kausale Zeichenkette">
+        <div class="causal-step" id="drawlab-flow-see"><strong>1 · Was sieht TATARUS?</strong><span id="drawlab-flow-see-value">Zielbild und eigener Leinwandzustand</span></div>
+        <div class="causal-step" id="drawlab-flow-neural"><strong>2 · Was geschieht neuronal?</strong><span id="drawlab-flow-neural-value">Assembly und Prospektion warten</span></div>
+        <div class="causal-step" id="drawlab-flow-act"><strong>3 · Welche Handlung?</strong><span id="drawlab-flow-act-value">Noch kein Motorbefehl</span></div>
+        <div class="causal-step" id="drawlab-flow-canvas"><strong>4 · Was erscheint?</strong><span id="drawlab-flow-canvas-value">Leinwand unverändert</span></div>
+      </div>
+
+      <div class="drawlab-grid">
+        <section class="panel drawlab-card" aria-labelledby="drawlab-canvas-title">
+          <div class="card-kicker">Bereich 1 · Leinwand / Umwelt</div>
+          <h3 id="drawlab-canvas-title">Retina, Zielbild und serielle Zeichenfläche</h3>
+          <p>Links kannst du ein Ziel wählen oder direkt hineinzeichnen. Rechts entsteht die Ausgabe ausschließlich durch Cursor- und Pinselaktionen.</p>
+          <div class="drawlab-toolbar">
+            <label class="field" for="drawlab-preset">Zielmuster
+              <select id="drawlab-preset">
+                <option value="circle">Kreis</option>
+                <option value="cross">Kreuz</option>
+                <option value="triangle">Dreieck</option>
+                <option value="tree">Baum</option>
+                <option value="house">Haus</option>
+                <option value="moon">Mondsichel</option>
+                <option value="blank">Freie Vorlage</option>
+              </select>
+            </label>
+            <button id="drawlab-clear-target" type="button">Ziel leeren</button>
+          </div>
+          <div class="drawing-pair">
+            <div class="drawing-board">
+              <label><span>Ziel / visueller Hinweis</span><span>editierbar</span></label>
+              <div class="drawing-canvas-shell"><canvas id="drawlab-target" width="320" height="320" aria-label="Editierbares Zielbild mit 32 mal 32 Zellen"></canvas></div>
+            </div>
+            <div class="drawing-board">
+              <label><span>TATARUS-Zeichnung</span><span id="drawlab-canvas-mode">motorisch</span></label>
+              <div class="drawing-canvas-shell">
+                <canvas id="drawlab-output" width="320" height="320" aria-label="Durch TATARUS-Motoraktionen entstehende Zeichnung"></canvas>
+                <i id="drawlab-cursor" class="draw-cursor" aria-hidden="true"></i>
+              </div>
+            </div>
+          </div>
+          <div class="retina-wrap"><div id="drawlab-retina" class="retina-grid" aria-label="Vier mal vier gepooltes Retinafeld"></div><span>Sensorfeld: 4 × 4 Pooling aus Ziel und eigener Leinwand – genau die verdichtete Sicht, die dem Nervensystem angeboten wird.</span></div>
+        </section>
+
+        <section class="panel drawlab-card" aria-labelledby="drawlab-neural-title">
+          <div class="card-kicker">Bereich 2 · Nervensystem</div>
+          <h3 id="drawlab-neural-title">Neuronaler Zustand des Zeichenmoments</h3>
+          <p>Die Werte stammen aus demselben Gewebe wie Navigation, Telemetrie, räumliches Gedächtnis und Organismusansicht.</p>
+          <div class="cause-readout"><strong id="drawlab-cause-title">Kausale Auswahlquelle: —</strong><span id="drawlab-cause-detail">Ein Ereignis starten, um die tatsächliche Quelle der Zeichenhandlung zu sehen.</span></div>
+          <div class="neural-readout">
+            <div class="neural-tile"><span>Aktives Assembly</span><strong id="drawlab-assembly">—</strong></div>
+            <div class="neural-tile"><span>Prospektives Assembly</span><strong id="drawlab-predicted">—</strong></div>
+            <div class="neural-tile"><span>Dendritenspikes</span><strong id="drawlab-dendrites">—</strong></div>
+            <div class="neural-tile"><span>Recall / Vertrautheit</span><strong id="drawlab-recall">—</strong></div>
+            <div class="neural-tile"><span>Synapsen-Tags / Tag-Signal</span><strong id="drawlab-tags">—</strong></div>
+            <div class="neural-tile"><span>CREB / Proteinpool</span><strong id="drawlab-creb">—</strong></div>
+            <div class="neural-tile"><span>Prospektion / Fehler</span><strong id="drawlab-prospection">—</strong></div>
+            <div class="neural-tile"><span>ATP / Schlafdruck</span><strong id="drawlab-metabolism">—</strong></div>
+          </div>
+          <div style="margin-top:12px;color:var(--muted);font-size:.68rem">Bestehende Motorpopulationen (gemessener Gewebezustand)</div>
+          <div class="motor-populations" style="margin-top:7px">
+            <div class="motor-population"><span>Nord</span><div class="bar"><i id="drawlab-motor-n"></i></div><strong id="drawlab-motor-n-v">—</strong></div>
+            <div class="motor-population"><span>Ost</span><div class="bar"><i id="drawlab-motor-e"></i></div><strong id="drawlab-motor-e-v">—</strong></div>
+            <div class="motor-population"><span>Süd</span><div class="bar"><i id="drawlab-motor-s"></i></div><strong id="drawlab-motor-s-v">—</strong></div>
+            <div class="motor-population"><span>West</span><div class="bar"><i id="drawlab-motor-w"></i></div><strong id="drawlab-motor-w-v">—</strong></div>
+          </div>
+        </section>
+
+        <section class="panel drawlab-card" aria-labelledby="drawlab-learning-title">
+          <div class="card-kicker">Bereich 3 · Lernlabor</div>
+          <h3 id="drawlab-learning-title">Training, Abruf, Komposition und Snapshots</h3>
+          <p>Beim Nachzeichnen ist das Ziel sichtbar. Beim Gedächtnis-, Symbol- und freien Abruf wird es vor der ersten Zeichenhandlung entfernt.</p>
+          <div class="lab-control-grid">
+            <label>Konzeptname<input id="drawlab-label" maxlength="120" value="KREIS" placeholder="z. B. KREIS"></label>
+            <label>Symbol / Komposition<input id="drawlab-symbol" maxlength="120" value="O" placeholder="z. B. O oder O,BAUM"></label>
+          </div>
+          <div class="drawlab-actions">
+            <button id="drawlab-learn" class="primary" type="button">Nachzeichnen lernen<small>Ziel sichtbar · Plastizität aktiv</small></button>
+            <button id="drawlab-recall" type="button">Gedächtniszeichnen<small>Hinweis sehen, dann verdecken</small></button>
+            <button id="drawlab-associate" type="button">Symbol verknüpfen<small>Text und visuelles Engramm koppeln</small></button>
+            <button id="drawlab-symbol-draw" type="button">Aus Symbol zeichnen<small>Keine Bildvorlage sichtbar</small></button>
+            <button id="drawlab-free" type="button">Freie Rekonstruktion<small>Stärkstes oder benanntes Engramm</small></button>
+            <button id="drawlab-compose" type="button">Symbole komponieren<small>Kommagetrennte Engramme räumlich verbinden</small></button>
+          </div>
+          <div class="button-row">
+            <button id="drawlab-mode-toggle" type="button">Testmodus starten</button>
+            <button id="drawlab-reset" type="button">Ausgabe leeren</button>
+            <button id="drawlab-save" type="button">Gesamtzustand sichern</button>
+            <button id="drawlab-load" type="button">Snapshot-Auswahl laden</button>
+          </div>
+          <div id="drawlab-operation-status" class="drawlab-statusline" role="status">Bereit. Ziel auswählen oder direkt in die linke Fläche zeichnen.</div>
+        </section>
+
+        <section class="panel drawlab-card" aria-labelledby="drawlab-analysis-title">
+          <div class="card-kicker">Bereich 4 · Analyse</div>
+          <h3 id="drawlab-analysis-title">Leistung und tatsächliche Ursache jeder Linie</h3>
+          <p>Die Wiedergabe zeigt die aufgezeichnete Reihenfolge echter Wahrnehmungs- und Motorereignisse; sie erfindet keine Zwischenbilder.</p>
+          <div class="analysis-metrics">
+            <div class="analysis-metric"><span>Ähnlichkeit</span><strong id="drawlab-similarity">—</strong></div>
+            <div class="analysis-metric"><span>Striche</span><strong id="drawlab-strokes">—</strong></div>
+            <div class="analysis-metric"><span>Aktionen</span><strong id="drawlab-actions-count">—</strong></div>
+            <div class="analysis-metric"><span>Fehlversuche</span><strong id="drawlab-failures">—</strong></div>
+            <div class="analysis-metric"><span>Neuheit</span><strong id="drawlab-novelty">—</strong></div>
+            <div class="analysis-metric"><span>Engramme</span><strong id="drawlab-engrams">—</strong></div>
+            <div class="analysis-metric"><span>Wiederholungen</span><strong id="drawlab-repeats">—</strong></div>
+            <div class="analysis-metric"><span>Fortschritt</span><strong id="drawlab-progress">—</strong></div>
+          </div>
+          <canvas id="drawlab-histogram" width="700" height="112" aria-label="Häufigkeit der Zeichenaktionen"></canvas>
+          <div class="trace-controls">
+            <button id="drawlab-replay" type="button">Kausale Spur wiederholen</button>
+            <label>Tempo <select id="drawlab-replay-speed"><option value="220">langsam</option><option value="90" selected>normal</option><option value="30">schnell</option></select></label>
+          </div>
+          <div id="drawlab-events" class="causal-events" aria-live="polite"><div class="causal-event"><span>—</span><strong>Noch keine Zeichenhandlung</strong><span>bereit</span></div></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="integrated-imaginatio-section" aria-labelledby="integrated-imaginatio-title">
+      <div class="panel integrated-imaginatio-shell">
+        <div class="integrated-imaginatio-heading">
+          <div>
+            <h2 id="integrated-imaginatio-title">TATARUS IMAGINATIO V14 · Hybrid Cortex · Executive</h2>
+            <p>Das vollständige Farblabor, Stage 1–7 und Cortex 0–15 arbeiten hier auf demselben laufenden SyntheticOrganism wie Navigation und Physiologie.</p>
+          </div>
+          <div class="integrated-imaginatio-actions">
+            <div id="integrated-imaginatio-status" class="status"><i class="status-dot" aria-hidden="true"></i><span>Studio wird verbunden</span></div>
+            <button id="integrated-imaginatio-reload" type="button">Studio neu laden</button>
+            <button id="integrated-imaginatio-open" type="button">Groß öffnen</button>
+          </div>
+        </div>
+        <iframe id="integrated-imaginatio-frame" src="/imaginatio-lab/index.html?embedded=1" title="TATARUS IMAGINATIO V14 und Hybrid Cortex"></iframe>
+      </div>
+    </section>
+
+    <section class="organism-section" aria-labelledby="organism-title">
+      <div class="panel robot-heading">
+        <div>
+          <h2 id="organism-title">TATARUS · Synthetischer Organismus (Herz · Kreislauf · Lunge · beide Nieren · Interozeption)</h2>
+          <p>Gekoppeltes physiologisches Multi-Organ-System in Echtzeit: Roboterbelastung erzeugt metabolischen Bedarf; Herz, Lunge und Niere versorgen das Nervensystem über den gemeinsamen Blutkreislauf.</p>
+        </div>
+        <div id="organism-status" class="status live"><i class="status-dot" aria-hidden="true"></i><span>Organismus synchron</span></div>
+      </div>
+
+      <div class="organism-grid">
+        <!-- 1. HERZ & HÄMODYNAMIK -->
+        <section class="panel organ-card highlight">
+          <div class="organ-card-header">
+            <h3>❤️ Herz & 4 Kammern</h3>
+            <span class="status-chip" id="org-card-ecg" style="font-size:0.7rem;color:var(--green)">SA-Puls: AKTIV</span>
+          </div>
+          <div class="chambers-mini">
+            <div class="chamber-box"><div>LV (Links): <strong id="h-plv">—</strong> mmHg</div><div>Vol: <strong id="h-vlv">—</strong> mL</div></div>
+            <div class="chamber-box"><div>RV (Rechts): <strong id="h-prv">—</strong> mmHg</div><div>Vol: <strong id="h-vrv">—</strong> mL</div></div>
+            <div class="chamber-box"><div>LA (Vorhof): <strong id="h-pla">—</strong> mmHg</div><div>Vol: <strong id="h-vla">—</strong> mL</div></div>
+            <div class="chamber-box"><div>RA (Vorhof): <strong id="h-pra">—</strong> mmHg</div><div>Vol: <strong id="h-vra">—</strong> mL</div></div>
+          </div>
+          <div>
+            <div class="metric-label" style="margin-bottom:4px">Klappenstatus (Druckgesteuert)</div>
+            <div class="valve-grid">
+              <div class="valve-badge" id="v-tri">Trikuspid</div>
+              <div class="valve-badge" id="v-pul">Pulmonal</div>
+              <div class="valve-badge" id="v-mit">Mitral</div>
+              <div class="valve-badge" id="v-aor">Aorta</div>
+            </div>
+          </div>
+          <div class="data-list">
+            <div class="data-row"><span>Herzfrequenz</span><strong id="h-hr">— bpm</strong></div>
+            <div class="data-row"><span>Schlagvolumen (SV)</span><strong id="h-sv">— mL</strong></div>
+            <div class="data-row"><span>Herzminutenvolumen (CO)</span><strong id="h-co">— L/min</strong></div>
+            <div class="data-row"><span>Ejektionsfraktion (EF)</span><strong id="h-ef">— %</strong></div>
+            <div class="data-row"><span>Myokard-O₂-Bedarf (MVO₂)</span><strong id="h-mvo2">— mL/min</strong></div>
+          </div>
+        </section>
+
+        <!-- 2. BLUT & KREISLAUF -->
+        <section class="panel organ-card">
+          <div class="organ-card-header">
+            <h3>🩸 Blut & Kreislauf</h3>
+            <span class="status-chip" id="circ-vol-chip" style="font-size:0.7rem;color:var(--cyan)">5.00 L</span>
+          </div>
+          <div class="data-list">
+            <div class="data-row"><span>Blutdruck (MAP)</span><strong id="c-map">— mmHg</strong></div>
+            <div class="data-row"><span>Systole / Diastole</span><strong id="c-sysdia">— / —</strong></div>
+            <div class="data-row"><span>Zentralvenöser Druck (CVP)</span><strong id="c-cvp">— mmHg</strong></div>
+            <div class="data-row"><span>Arterielles SaO₂</span><strong id="c-sao2">— %</strong></div>
+            <div class="data-row"><span>Arterieller pH-Wert</span><strong id="c-ph">—</strong></div>
+            <div class="data-row"><span>Arterielles PaO₂ / PaCO₂</span><strong id="c-gases">— / — mmHg</strong></div>
+            <div class="data-row"><span>Plasma Na⁺ / K⁺ / Ca²⁺</span><strong id="c-ions">— / — / — mM</strong></div>
+            <div class="data-row"><span>Glukose / Harnstoff / Laktat</span><strong id="c-solutes">— / — / — mM</strong></div>
+            <div class="data-row"><span>Bluttemperatur</span><strong id="c-temp">— °C</strong></div>
+          </div>
+        </section>
+
+        <!-- 3. LUNGE & ATMOSPHÄRE -->
+        <section class="panel organ-card">
+          <div class="organ-card-header">
+            <h3>🫁 Lunge & Atmosphäre</h3>
+            <span class="status-chip" id="lung-atmo-chip" style="font-size:0.7rem;color:var(--amber)">Erde 21% O₂</span>
+          </div>
+          <div class="data-list">
+            <div class="data-row"><span>Atemfrequenz (RR)</span><strong id="l-rr">— /min</strong></div>
+            <div class="data-row"><span>Atemzugvolumen (VT)</span><strong id="l-vt">— L</strong></div>
+            <div class="data-row"><span>Minutenventilation (VE)</span><strong id="l-ve">— L/min</strong></div>
+            <div class="data-row"><span>Alveoläres PAO₂ / PACO₂</span><strong id="l-alveolar">— / — mmHg</strong></div>
+            <div class="data-row"><span>O₂-Aufnahmerate</span><strong id="l-uptake">— mL/min</strong></div>
+          </div>
+          <div style="margin-top:auto">
+            <label class="lab-fields" style="display:grid;gap:4px">
+              <span class="metric-label">Atmosphäre-Umschaltung</span>
+              <select id="atmosphere-select">
+                <option value="earth" selected>Erde (101.3 kPa, 21% O2, 22°C)</option>
+                <option value="mars">Mars (0.64 kPa, 95% CO2, 0.13% O2)</option>
+                <option value="altitude_4000m">Hochgebirge (4000m, 61.6 kPa)</option>
+                <option value="hypoxic_chamber">Hypoxie-Kammer (101.3 kPa, 10% O2)</option>
+                <option value="hypercapnia">Hyperkapnie (101.3 kPa, 5% CO2)</option>
+              </select>
+            </label>
+          </div>
+        </section>
+
+        <!-- 4. NIERE, RAAS & INTEROZEPTION -->
+        <section class="panel organ-card">
+          <div class="organ-card-header">
+            <h3>🧪 Linke & rechte Niere, RAAS & Interozeption</h3>
+            <span class="status-chip" id="kidney-chip" style="font-size:0.7rem;color:var(--violet)">2 aktive Nieren</span>
+          </div>
+          <div class="data-list">
+            <div class="data-row"><span>GFR (Filtration)</span><strong id="k-gfr">— mL/min</strong></div>
+            <div class="data-row"><span>Linke Niere (GFR / Blutfluss)</span><strong id="k-left">— / —</strong></div>
+            <div class="data-row"><span>Rechte Niere (GFR / Blutfluss)</span><strong id="k-right">— / —</strong></div>
+            <div class="data-row"><span>Urinausscheidung</span><strong id="k-urine">— mL/min</strong></div>
+            <div class="data-row"><span>Urin-Osmolarität</span><strong id="k-osm">— mOsm/kg</strong></div>
+            <div class="data-row"><span>Renin / Angiotensin II</span><strong id="k-raas">— / —</strong></div>
+            <div class="data-row"><span>Viszeraler Distress</span><strong id="i-distress">—</strong></div>
+            <div>
+              <div class="data-row"><span>Autonome Balance (Symp / Vagus)</span><strong id="i-autonomic">— / —</strong></div>
+              <div class="autonomic-bar"><i id="bar-symp" class="autonomic-symp" style="width:50%"></i><i id="bar-para" class="autonomic-para" style="width:50%"></i></div>
+            </div>
+          </div>
+          <div class="button-row" style="margin-top:auto">
+            <button id="btn-org-infuse" type="button" style="font-size:0.68rem;padding:0.4rem 0.6rem">+500 mL Infusion</button>
+            <button id="btn-org-bleed" type="button" class="danger" style="font-size:0.68rem;padding:0.4rem 0.6rem">-300 mL Blutung</button>
+            <button id="btn-org-reset" type="button" style="font-size:0.68rem;padding:0.4rem 0.6rem">Organe Reset</button>
+          </div>
+          <div class="button-row" style="margin-top:6px">
+            <button id="btn-left-kidney" type="button" style="font-size:0.68rem;padding:0.4rem 0.6rem">Linke Niere: 100 %</button>
+            <button id="btn-right-kidney" type="button" style="font-size:0.68rem;padding:0.4rem 0.6rem">Rechte Niere: 100 %</button>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="lab-section" aria-labelledby="lab-title">
+      <div class="panel robot-heading">
+        <div>
+          <h2 id="lab-title">Kausallabor · Controller, Eingriffe, Vergleich & Wiederherstellung</h2>
+          <p>Kontrollierte Versuche verwenden identische Seeds und Zeitschritte. Die Sicherheitsgrenze bleibt unabhängig vom lernenden Gewebe.</p>
+        </div>
+        <div id="experiment-status" class="status"><i class="status-dot" aria-hidden="true"></i><span>Labor bereit</span></div>
+      </div>
+      <div class="lab-grid">
+        <section class="panel lab-card">
+          <h3>Steuerungsmodus</h3>
+          <p>Direkt neuronal für das eigentliche TATARUS-Training; Hybrid und klassischer Referenzpfad dienen als Vergleichsbedingungen.</p>
+          <div class="lab-fields">
+            <label>Aktive Steuerung
+              <select id="controller-select">
+                <option value="neural_direct">Nervensystem direkt</option>
+                <option value="hybrid_reward">Neuronaler Hybrid-Readout</option>
+                <option value="classical_baseline">Klassischer Referenzpfad</option>
+              </select>
+            </label>
+          </div>
+          <div class="safety-state" style="margin-top:14px">
+            <span>Unabhängige Schutzschicht</span><strong id="lab-safety-state">AKTIV</strong>
+            <span>Letzter Eingriff</span><strong id="lab-safety-reason">keiner</strong>
+            <span>Blockierte Aktionen</span><strong id="lab-safety-count">0</strong>
+          </div>
+        </section>
+
+        <section class="panel lab-card">
+          <h3>Live-Gewebeintervention</h3>
+          <p>Verändert kausal Physiologie, Versorgung oder Reparatur des aktuell trainierenden Nervensystems.</p>
+          <div class="lab-fields">
+            <label>Versuchsbedingung
+              <select id="intervention-select">
+                <option value="control">Kontrolle / Normalzustand</option>
+                <option value="astrocyte_failure">Astrozyten-Störung</option>
+                <option value="demyelination">Demyelinisierung</option>
+                <option value="hypoxia">Hypoxie</option>
+                <option value="hypoglycemia">Glukosemangel</option>
+                <option value="pump_failure">Na⁺/K⁺-Pumpenstörung</option>
+                <option value="sleep_deprivation">Schlafentzug</option>
+                <option value="microglia_suppression">Mikroglia-Hemmung</option>
+                <option value="neuromodulator_suppression">Neuromodulator-Hemmung</option>
+                <option value="tissue_damage">Gewebeschaden</option>
+              </select>
+            </label>
+          </div>
+          <div class="button-row"><button id="apply-intervention" class="primary" type="button">Auf Live-Gewebe anwenden</button></div>
+        </section>
+
+        <section class="panel lab-card">
+          <h3>Gepaarter A/B-Versuch</h3>
+          <p>Kontrolle und Intervention laufen isoliert mit gleicher Welt, gleichem Seed und gleicher Simulationsdauer.</p>
+          <div class="lab-fields">
+            <label>Simulationsschritte
+              <input id="experiment-steps" type="number" min="100" max="10000" step="100" value="1200">
+            </label>
+          </div>
+          <div class="button-row"><button id="start-experiment" class="primary" type="button">A/B-Versuch starten</button></div>
+          <div class="progress"><i id="experiment-progress"></i></div>
+        </section>
+
+        <section class="panel lab-card timeline-card">
+          <h3>Kausale Zeitlinie</h3>
+          <p>Belohnung, Gewebeenergie und Interventionen werden gemeinsam entlang derselben Trainingsuhr aufgezeichnet.</p>
+          <canvas id="timeline-canvas" width="900" height="190"></canvas>
+          <div class="timeline-legend"><span style="color:#59e1ff">— Gesamtbelohnung</span><span style="color:#72f3b2">— mittlere Energie</span><span style="color:#ffc66b">│ Ereignisse</span></div>
+        </section>
+
+        <section class="panel lab-card">
+          <h3>Versuchsergebnis</h3>
+          <p id="experiment-description">Noch kein A/B-Versuch abgeschlossen.</p>
+          <div id="experiment-result" class="result-grid"></div>
+        </section>
+
+        <section class="panel lab-card">
+          <h3>Atomarer Embodiment-Snapshot</h3>
+          <p>Sichert Nervengewebe, Ionen, Welt, Roboterposition, Controller, Episode und Zufallszustand als überprüfte Einheit.</p>
+          <div class="lab-fields">
+            <label>Bezeichnung<input id="snapshot-label" maxlength="120" placeholder="z. B. vor Hypoxie"></label>
+            <label>Gespeicherter Zustand<select id="snapshot-select"><option value="">Noch keine Snapshots</option></select></label>
+          </div>
+          <div class="button-row">
+            <button id="save-snapshot" class="primary" type="button">Gesamtzustand sichern</button>
+            <button id="load-snapshot" type="button">Auswahl laden</button>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    import * as THREE from 'https://esm.sh/three@0.180.0';
+    import { OrbitControls } from 'https://esm.sh/three@0.180.0/examples/jsm/controls/OrbitControls.js?deps=three@0.180.0';
+
+    const $ = (id) => document.getElementById(id);
+    const directionLabel = (value) => ({ north: 'NORD', east: 'OST', south: 'SÜD', west: 'WEST' }[String(value).toLowerCase()] || String(value).toUpperCase());
+    const controllerLabel = (value) => ({
+      neural_direct: 'Nervensystem direkt',
+      hybrid_reward: 'Neuronaler Hybrid-Readout',
+      classical_baseline: 'Klassischer Referenzpfad'
+    }[value] || value || '—');
+    const canvas = $('scene');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x071018, 0.00085);
+    const camera = new THREE.PerspectiveCamera(44, 1, 1, 3500);
+    const initialCamera = new THREE.Vector3(0, -140, 1150);
+    const modelCenter = new THREE.Vector3(0, -220, 0);
+    camera.position.copy(initialCamera);
+    const controls = new OrbitControls(camera, canvas);
+    controls.target.copy(modelCenter);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.055;
+    controls.minDistance = 150;
+    controls.maxDistance = 2200;
+
+    scene.add(new THREE.HemisphereLight(0xdff8ff, 0x071018, 1.3));
+    const keyLight = new THREE.DirectionalLight(0xdff8ff, 2.2);
+    keyLight.position.set(300, 500, 420);
+    scene.add(keyLight);
+    const rimLight = new THREE.PointLight(0x9e7cff, 260, 900);
+    rimLight.position.set(-120, 180, -80);
+    scene.add(rimLight);
+    const heartLight = new THREE.PointLight(0xff3b5c, 180, 500);
+    heartLight.position.set(0, -320, 120);
+    scene.add(heartLight);
+
+    const model = new THREE.Group();
+    scene.add(model);
+    let geometryData = null;
+    let frameData = null;
+    let neuronMesh = null;
+    let ecsMesh = null;
+    let dendriteLines = null;
+    let axonLines = null;
+    let signalGroup = null;
+    let astrocyteGroup = null;
+    let oligodendrocyteGroup = null;
+    let microgliaGroup = null;
+    let capillaryGroup = null;
+    let tissueEnvelopeGroup = null;
+    let heart3DGroup = null;
+    let lungs3DGroup = null;
+    let kidneys3DGroup = null;
+    let vessels3DGroup = null;
+    let bloodParticlesGroup = null;
+    let bloodParticles = [];
+    let bloodSplines = [];
+    let heartValves3D = {};
+    let leftLungMesh = null;
+    let rightLungMesh = null;
+    let leftKidney3D = null;
+    let rightKidney3D = null;
+    let currentViewFocus = 'organism';
+    let leftKidneyFunction = 1.0;
+    let rightKidneyFunction = 1.0;
+    let liveOrganismData = null;
+    let signalPool = [];
+    let astrocyteMeshes = [];
+    let oligodendrocyteMeshes = [];
+    let microgliaMeshes = [];
+    let capillaryMeshes = [];
+    let selectedNeuron = null;
+    let lastGeometrySignature = '';
+    let lastRenderedTissueRatio = 1;
+    let motorDirectionById = new Map();
+    let axonById = new Map();
+    let backendStatus = { paused: false, speed: 1, seed: 7411, error: '' };
+
+    const roleColors = {
+      sensory: new THREE.Color(0x59e1ff),
+      excitatory: new THREE.Color(0x72f3b2),
+      inhibitory: new THREE.Color(0xff7eb6),
+      context: new THREE.Color(0xbe9cff),
+      motor: new THREE.Color(0xffc66b),
+      modulatory: new THREE.Color(0x71a8ff)
+    };
+    const subtypeColors = {
+      sensory: new THREE.Color(0x59e1ff),
+      pyramidal: new THREE.Color(0x72f3b2),
+      pv: new THREE.Color(0xff506e),
+      sst: new THREE.Color(0xf5a65b),
+      vip: new THREE.Color(0xd884ff),
+      neuromodulatory: new THREE.Color(0x71a8ff)
+    };
+    const inactiveColor = new THREE.Color(0x263743);
+    const spikeColor = new THREE.Color(0xffffff);
+    const damagedColor = new THREE.Color(0xff5368);
+    const temporaryColor = new THREE.Color();
+    const temporaryMatrix = new THREE.Matrix4();
+    const temporaryPosition = new THREE.Vector3();
+
+    const robotCanvas = $('robot-canvas');
+    const robotRenderer = new THREE.WebGLRenderer({ canvas: robotCanvas, antialias: true, alpha: true });
+    robotRenderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    robotRenderer.outputColorSpace = THREE.SRGBColorSpace;
+    robotRenderer.shadowMap.enabled = true;
+    robotRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    const robotScene = new THREE.Scene();
+    robotScene.fog = new THREE.FogExp2(0x071018, 0.0009);
+    const robotCamera = new THREE.PerspectiveCamera(46, 1, 0.5, 1400);
+    const robotInitialCamera = new THREE.Vector3(330, 310, 350);
+    robotCamera.position.copy(robotInitialCamera);
+    const robotControls = new OrbitControls(robotCamera, robotCanvas);
+    robotControls.target.set(0, 0, 0);
+    robotControls.enableDamping = true;
+    robotControls.dampingFactor = 0.06;
+    robotControls.minDistance = 130;
+    robotControls.maxDistance = 800;
+    robotControls.maxPolarAngle = Math.PI * 0.48;
+    robotScene.add(new THREE.HemisphereLight(0xdff8ff, 0x102a36, 2.15));
+    const robotKeyLight = new THREE.DirectionalLight(0xf0fbff, 3.6);
+    robotKeyLight.position.set(180, 330, 220);
+    robotKeyLight.castShadow = true;
+    robotKeyLight.shadow.mapSize.set(1024, 1024);
+    robotScene.add(robotKeyLight);
+    const robotAccentLight = new THREE.PointLight(0x72f3b2, 260, 620);
+    robotAccentLight.position.set(-190, 95, -130);
+    robotScene.add(robotAccentLight);
+
+    const robotWorldGroup = new THREE.Group();
+    const robotPathGroup = new THREE.Group();
+    const robotCartographyGroup = new THREE.Group();
+    robotScene.add(robotWorldGroup, robotCartographyGroup, robotPathGroup);
+    let robotModel = null;
+    let robotTrailLine = null;
+    let robotLearnedLine = null;
+    let robotTrailPoints = null;
+    let robotLearnedPoints = null;
+    let robotVisitedMesh = null;
+    let robotFloor = null;
+    let robotWorldData = null;
+    let robotWorldSignature = '';
+    let robotMapEditMode = false;
+    let robotMapTool = 'obstacle';
+    let robotMapRequestPending = false;
+    const robotCell = 24;
+    const robotEditMarker = new THREE.Mesh(
+      new THREE.PlaneGeometry(robotCell * 0.84, robotCell * 0.84),
+      new THREE.MeshBasicMaterial({ color: 0x59e1ff, transparent: true, opacity: 0.38, side: THREE.DoubleSide, depthTest: false })
+    );
+    robotEditMarker.rotation.x = -Math.PI / 2;
+    robotEditMarker.visible = false;
+    robotEditMarker.renderOrder = 20;
+    robotScene.add(robotEditMarker);
+
+    function disposeMaterial(material) {
+      if (Array.isArray(material)) material.forEach(disposeMaterial);
+      else if (material) material.dispose();
+    }
+    function clearModel() {
+      while (model.children.length) {
+        const child = model.children.pop();
+        child.traverse((object) => {
+          if (object.geometry) object.geometry.dispose();
+          if (object.material) disposeMaterial(object.material);
+        });
+      }
+      signalPool = [];
+      astrocyteMeshes = [];
+      oligodendrocyteMeshes = [];
+      microgliaMeshes = [];
+      capillaryMeshes = [];
+      heart3DGroup = null;
+      lungs3DGroup = null;
+      kidneys3DGroup = null;
+      vessels3DGroup = null;
+      bloodParticlesGroup = null;
+      bloodParticles = [];
+      bloodSplines = [];
+      heartValves3D = {};
+      leftLungMesh = null;
+      rightLungMesh = null;
+      leftKidney3D = null;
+      rightKidney3D = null;
+    }
+
+    function point(values) { return new THREE.Vector3(values[0], values[1], values[2]); }
+
+    function buildGeometry(data) {
+      clearModel();
+      geometryData = data;
+      lastRenderedTissueRatio = Number(data.tissue_shape?.volume_ratio || 1);
+      axonById = new Map(data.axons.map((axon) => [axon.id, axon]));
+      motorDirectionById = new Map();
+      let motorOffset = 0;
+      data.neurons.forEach((neuron) => {
+        if (neuron.role === 'motor') {
+          motorDirectionById.set(neuron.id, motorOffset % 4);
+          motorOffset += 1;
+        }
+      });
+      selectedNeuron = null;
+      $('selection').textContent = 'Klicke ein Soma im 3D-Modell an.';
+
+      tissueEnvelopeGroup = new THREE.Group();
+      const shape = data.tissue_shape || {};
+      const radii = shape.radii_um || [420, 330, 280];
+      const center = shape.center || [0, 0, 0];
+      const fissure = Number(shape.interhemispheric_fissure_um || 24);
+      const envelopeGeometry = new THREE.SphereGeometry(1, 40, 28);
+      for (const side of [-1, 1]) {
+        const envelope = new THREE.Mesh(
+          envelopeGeometry,
+          new THREE.MeshPhongMaterial({
+            color: side < 0 ? 0x4cb6d5 : 0x697edb,
+            emissive: side < 0 ? 0x123744 : 0x20294f,
+            transparent: true,
+            opacity: 0.055,
+            depthWrite: false,
+            side: THREE.DoubleSide
+          })
+        );
+        envelope.scale.set(radii[0] * 0.52, radii[1], radii[2]);
+        envelope.position.set(center[0] + side * (radii[0] * 0.48 + fissure * 0.32), center[1], center[2]);
+        tissueEnvelopeGroup.add(envelope);
+        const outline = new THREE.LineSegments(
+          new THREE.EdgesGeometry(new THREE.SphereGeometry(1, 22, 14), 24),
+          new THREE.LineBasicMaterial({ color: side < 0 ? 0x59e1ff : 0x9e7cff, transparent: true, opacity: 0.07 })
+        );
+        outline.scale.copy(envelope.scale);
+        outline.position.copy(envelope.position);
+        tissueEnvelopeGroup.add(outline);
+      }
+      model.add(tissueEnvelopeGroup);
+
+      const somaGeometry = new THREE.SphereGeometry(7.4, 16, 12);
+      const somaMaterial = new THREE.MeshPhongMaterial({
+        color: 0xffffff,
+        emissive: 0xffffff,
+        emissiveIntensity: 0.13,
+        shininess: 70,
+        vertexColors: true
+      });
+      neuronMesh = new THREE.InstancedMesh(somaGeometry, somaMaterial, data.neurons.length);
+      data.neurons.forEach((neuron, index) => {
+        temporaryMatrix.makeTranslation(neuron.soma[0], neuron.soma[1], neuron.soma[2]);
+        neuronMesh.setMatrixAt(index, temporaryMatrix);
+        neuronMesh.setColorAt(index, roleColors[neuron.role] || roleColors.excitatory);
+      });
+      neuronMesh.instanceMatrix.needsUpdate = true;
+      neuronMesh.instanceColor.needsUpdate = true;
+      model.add(neuronMesh);
+
+      const ecsGeometry = new THREE.SphereGeometry(18, 10, 8);
+      const ecsMaterial = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.075,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending
+      });
+      ecsMesh = new THREE.InstancedMesh(ecsGeometry, ecsMaterial, data.neurons.length);
+      data.neurons.forEach((neuron, index) => {
+        temporaryMatrix.makeTranslation(neuron.soma[0], neuron.soma[1], neuron.soma[2]);
+        ecsMesh.setMatrixAt(index, temporaryMatrix);
+        ecsMesh.setColorAt(index, new THREE.Color(0x3b7cff));
+      });
+      ecsMesh.instanceMatrix.needsUpdate = true;
+      ecsMesh.instanceColor.needsUpdate = true;
+      model.add(ecsMesh);
+
+      const dendritePositions = [];
+      data.dendrites.forEach((segment) => {
+        const origin = segment.parent >= 0
+          ? data.dendrites[segment.parent].position
+          : data.neurons[segment.neuron].soma;
+        dendritePositions.push(...origin, ...segment.position);
+      });
+      const dendriteGeometry = new THREE.BufferGeometry();
+      dendriteGeometry.setAttribute('position', new THREE.Float32BufferAttribute(dendritePositions, 3));
+      const dendriteColors = new Float32Array(data.dendrites.length * 6);
+      dendriteGeometry.setAttribute('color', new THREE.BufferAttribute(dendriteColors, 3));
+      dendriteLines = new THREE.LineSegments(
+        dendriteGeometry,
+        new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.82 })
+      );
+      model.add(dendriteLines);
+
+      const axonPositions = [];
+      data.axons.forEach((axon) => axonPositions.push(...axon.start, ...axon.end));
+      const axonGeometry = new THREE.BufferGeometry();
+      axonGeometry.setAttribute('position', new THREE.Float32BufferAttribute(axonPositions, 3));
+      axonGeometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(data.axons.length * 6), 3));
+      axonLines = new THREE.LineSegments(
+        axonGeometry,
+        new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.32 })
+      );
+      model.add(axonLines);
+
+      signalGroup = new THREE.Group();
+      const signalGeometry = new THREE.SphereGeometry(3.5, 9, 7);
+      for (let index = 0; index < 160; index += 1) {
+        const mesh = new THREE.Mesh(
+          signalGeometry,
+          new THREE.MeshBasicMaterial({ color: index % 2 ? 0x59e1ff : 0xffffff })
+        );
+        mesh.visible = false;
+        signalPool.push(mesh);
+        signalGroup.add(mesh);
+      }
+      model.add(signalGroup);
+
+      astrocyteGroup = new THREE.Group();
+      data.astrocytes.forEach((cell) => {
+        const group = new THREE.Group();
+        group.position.copy(point(cell.center));
+        const core = new THREE.Mesh(
+          new THREE.SphereGeometry(11, 12, 9),
+          new THREE.MeshPhongMaterial({ color: 0x54e7d1, emissive: 0x247f76, transparent: true, opacity: 0.82 })
+        );
+        const domain = new THREE.Mesh(
+          new THREE.SphereGeometry(62, 14, 10),
+          new THREE.MeshBasicMaterial({ color: 0x54e7d1, transparent: true, opacity: 0.09, wireframe: true })
+        );
+        domain.scale.set(1.18, 0.88, 0.82);
+        group.add(core, domain);
+        group.userData.core = core;
+        astrocyteMeshes.push(group);
+        astrocyteGroup.add(group);
+      });
+      model.add(astrocyteGroup);
+
+      oligodendrocyteGroup = new THREE.Group();
+      data.oligodendrocytes.forEach((cell, index) => {
+        const mesh = new THREE.Mesh(
+          new THREE.IcosahedronGeometry(15, 1),
+          new THREE.MeshPhongMaterial({ color: 0xbe9cff, emissive: 0x4b3278, wireframe: true, transparent: true, opacity: 0.9 })
+        );
+        mesh.position.copy(point(cell.center)).add(new THREE.Vector3(0, 18 + (index % 2) * 8, 12));
+        oligodendrocyteMeshes.push(mesh);
+        oligodendrocyteGroup.add(mesh);
+      });
+      model.add(oligodendrocyteGroup);
+
+      microgliaGroup = new THREE.Group();
+      data.microglia.forEach((cell, index) => {
+        const group = new THREE.Group();
+        group.position.copy(point(cell.center)).add(new THREE.Vector3(14, -10, index % 2 ? 18 : -18));
+        const core = new THREE.Mesh(
+          new THREE.SphereGeometry(8.5, 10, 8),
+          new THREE.MeshPhongMaterial({ color: 0xffc66b, emissive: 0x78511f, transparent: true, opacity: 0.9 })
+        );
+        group.add(core);
+        const armPositions = [];
+        for (let arm = 0; arm < 6; arm += 1) {
+          const angle = arm * Math.PI / 3 + index * 0.21;
+          armPositions.push(0, 0, 0, Math.cos(angle) * 21, Math.sin(angle) * 14, arm % 2 ? 13 : -13);
+        }
+        const armGeometry = new THREE.BufferGeometry();
+        armGeometry.setAttribute('position', new THREE.Float32BufferAttribute(armPositions, 3));
+        group.add(new THREE.LineSegments(armGeometry, new THREE.LineBasicMaterial({ color: 0xffc66b, transparent: true, opacity: 0.72 })));
+        group.userData.core = core;
+        microgliaMeshes.push(group);
+        microgliaGroup.add(group);
+      });
+      model.add(microgliaGroup);
+
+      capillaryGroup = new THREE.Group();
+      const vesselGeometry = new THREE.SphereGeometry(5.2, 10, 8);
+      data.capillaries.forEach((vessel) => {
+        const mesh = new THREE.Mesh(
+          vesselGeometry,
+          new THREE.MeshPhongMaterial({ color: 0xff5368, emissive: 0x7b1726, transparent: true, opacity: 0.82 })
+        );
+        mesh.position.copy(point(vessel.position));
+        capillaryMeshes.push(mesh);
+        capillaryGroup.add(mesh);
+      });
+      const vesselLineGeometry = new THREE.BufferGeometry().setFromPoints(data.capillaries.map((vessel) => point(vessel.position)));
+      capillaryGroup.add(new THREE.Line(vesselLineGeometry, new THREE.LineBasicMaterial({ color: 0xff5368, transparent: true, opacity: 0.25 })));
+      capillaryGroup.visible = false;
+      model.add(capillaryGroup);
+
+      // Build 3D Organism (Heart, Lungs, Kidneys, Vascular Network)
+      build3DOrganism();
+
+      applyLayers();
+      lastGeometrySignature = `${data.seed}:${data.neurons.length}:${data.dendrites.length}:${data.axons.length}:${Number(data.tissue_shape?.volume_ratio || 1).toFixed(4)}`;
+      updateFrame(frameData);
+    }
+
+    function build3DOrganism() {
+      // 1. Heart 3D Group
+      heart3DGroup = new THREE.Group();
+      heart3DGroup.position.set(0, -320, 20);
+
+      // Left Ventricle (muscular cone/ellipsoid, deep red/crimson)
+      const lvGeo = new THREE.SphereGeometry(38, 24, 18);
+      lvGeo.scale(0.85, 1.35, 0.9);
+      const lvMat = new THREE.MeshPhongMaterial({
+        color: 0xd92040,
+        emissive: 0x6e0818,
+        emissiveIntensity: 0.35,
+        shininess: 80,
+        transparent: true,
+        opacity: 0.92
+      });
+      const lvMesh = new THREE.Mesh(lvGeo, lvMat);
+      lvMesh.position.set(-18, -12, 10);
+      lvMesh.rotation.z = 0.25;
+      heart3DGroup.add(lvMesh);
+
+      // Right Ventricle (crescent adjacent to LV)
+      const rvGeo = new THREE.SphereGeometry(32, 20, 16);
+      rvGeo.scale(0.8, 1.15, 0.75);
+      const rvMat = new THREE.MeshPhongMaterial({
+        color: 0xbf3050,
+        emissive: 0x5a0815,
+        emissiveIntensity: 0.25,
+        transparent: true,
+        opacity: 0.88
+      });
+      const rvMesh = new THREE.Mesh(rvGeo, rvMat);
+      rvMesh.position.set(20, -5, 16);
+      rvMesh.rotation.z = -0.15;
+      heart3DGroup.add(rvMesh);
+
+      // Left Atrium (superior posterior)
+      const laGeo = new THREE.SphereGeometry(22, 16, 14);
+      laGeo.scale(1.0, 0.85, 0.95);
+      const laMat = new THREE.MeshPhongMaterial({ color: 0xad223b, emissive: 0x480812, transparent: true, opacity: 0.85 });
+      const laMesh = new THREE.Mesh(laGeo, laMat);
+      laMesh.position.set(-15, 30, -5);
+      heart3DGroup.add(laMesh);
+
+      // Right Atrium (superior anterior)
+      const raGeo = new THREE.SphereGeometry(24, 16, 14);
+      raGeo.scale(1.05, 0.9, 0.95);
+      const raMat = new THREE.MeshPhongMaterial({ color: 0x962035, emissive: 0x3e0610, transparent: true, opacity: 0.85 });
+      const raMesh = new THREE.Mesh(raGeo, raMat);
+      raMesh.position.set(24, 28, 5);
+      heart3DGroup.add(raMesh);
+
+      // 4 Valve Rings
+      const valveRingGeo = new THREE.TorusGeometry(8, 1.4, 8, 20);
+      const makeValveRing = (pos, col, name) => {
+        const mat = new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.6 });
+        const ring = new THREE.Mesh(valveRingGeo, mat);
+        ring.position.copy(pos);
+        ring.rotation.x = Math.PI / 2;
+        heart3DGroup.add(ring);
+        heartValves3D[name] = ring;
+      };
+      makeValveRing(new THREE.Vector3(18, 15, 10), 0x72f3b2, 'tri');
+      makeValveRing(new THREE.Vector3(8, 38, 22), 0x59e1ff, 'pul');
+      makeValveRing(new THREE.Vector3(-14, 14, 2), 0x72f3b2, 'mit');
+      makeValveRing(new THREE.Vector3(-8, 35, 8), 0xffc66b, 'aor');
+
+      // Heart SA/AV Electrical Node Pacemaker Light
+      const saNodeLight = new THREE.PointLight(0x72f3b2, 1.2, 80);
+      saNodeLight.position.set(28, 38, 5);
+      heart3DGroup.add(saNodeLight);
+      heart3DGroup.userData.saNode = saNodeLight;
+      heart3DGroup.userData.lv = lvMesh;
+      heart3DGroup.userData.rv = rvMesh;
+
+      model.add(heart3DGroup);
+
+      // 2. Lungs 3D Group
+      lungs3DGroup = new THREE.Group();
+      lungs3DGroup.position.set(0, -310, 0);
+
+      // Left Lung (bi-lobed)
+      const leftLungGeo = new THREE.SphereGeometry(44, 24, 18);
+      leftLungGeo.scale(0.85, 1.8, 1.1);
+      const lungMat = new THREE.MeshPhongMaterial({
+        color: 0xffa07a,
+        emissive: 0x4a2218,
+        emissiveIntensity: 0.2,
+        transparent: true,
+        opacity: 0.42,
+        depthWrite: false
+      });
+      leftLungMesh = new THREE.Mesh(leftLungGeo, lungMat);
+      leftLungMesh.position.set(-145, -10, -5);
+      leftLungMesh.rotation.z = -0.12;
+      lungs3DGroup.add(leftLungMesh);
+
+      // Right Lung (tri-lobed, slightly larger)
+      const rightLungGeo = new THREE.SphereGeometry(48, 24, 18);
+      rightLungGeo.scale(0.9, 1.85, 1.15);
+      rightLungMesh = new THREE.Mesh(rightLungGeo, lungMat);
+      rightLungMesh.position.set(145, -10, -5);
+      rightLungMesh.rotation.z = 0.12;
+      lungs3DGroup.add(rightLungMesh);
+
+      // Trachea and Bronchial Tree Lines
+      const bronchusPoints = [
+        new THREE.Vector3(0, 80, -10),
+        new THREE.Vector3(0, 30, -10),
+        // left bronchus
+        new THREE.Vector3(-60, 0, -5),
+        new THREE.Vector3(-120, -20, -5),
+        new THREE.Vector3(-140, -60, -5),
+        // right bronchus
+        new THREE.Vector3(0, 30, -10),
+        new THREE.Vector3(60, 0, -5),
+        new THREE.Vector3(120, -20, -5),
+        new THREE.Vector3(140, -60, -5)
+      ];
+      const bronchusGeo = new THREE.BufferGeometry().setFromPoints(bronchusPoints);
+      const bronchusLines = new THREE.Line(bronchusGeo, new THREE.LineBasicMaterial({ color: 0xffd899, linewidth: 2, transparent: true, opacity: 0.7 }));
+      lungs3DGroup.add(bronchusLines);
+
+      model.add(lungs3DGroup);
+
+      // 3. Kidneys 3D Group
+      kidneys3DGroup = new THREE.Group();
+      kidneys3DGroup.position.set(0, -480, -20);
+
+      const makeKidney = (side, x, y, z, rotZ) => {
+        const kidneyGroup = new THREE.Group();
+        kidneyGroup.position.set(x, y, z);
+        kidneyGroup.rotation.z = rotZ;
+
+        const kGeo = new THREE.SphereGeometry(24, 20, 16);
+        kGeo.scale(0.65, 1.25, 0.7);
+        const kMat = new THREE.MeshPhongMaterial({
+          color: 0x8a2be2,
+          emissive: 0x320c57,
+          emissiveIntensity: 0.35,
+          transparent: true,
+          opacity: 0.88
+        });
+        const kMesh = new THREE.Mesh(kGeo, kMat);
+        kMesh.userData.organ = `kidney-${side}`;
+        kidneyGroup.add(kMesh);
+
+        // Causal micro-view: simplified glomeruli and nephron loops. Their live
+        // colour/opacity is driven separately by the left/right kernel telemetry.
+        const microGroup = new THREE.Group();
+        const glomerulusGeometry = new THREE.SphereGeometry(2.1, 8, 6);
+        for (let index = 0; index < 14; index++) {
+          const angle = (index / 14) * Math.PI * 2;
+          const radius = 10 + (index % 3) * 3.5;
+          const glomerulus = new THREE.Mesh(
+            glomerulusGeometry,
+            new THREE.MeshBasicMaterial({ color: 0x59e1ff, transparent: true, opacity: 0.82 })
+          );
+          glomerulus.position.set(
+            Math.cos(angle) * radius * 0.65,
+            Math.sin(angle) * radius * 1.15,
+            (index % 2 ? 1 : -1) * 8
+          );
+          microGroup.add(glomerulus);
+
+          const loopPoints = [];
+          for (let step = 0; step <= 12; step++) {
+            const t = step / 12;
+            loopPoints.push(new THREE.Vector3(
+              glomerulus.position.x * (1 - 0.75 * t),
+              glomerulus.position.y - 22 * Math.sin(Math.PI * t),
+              glomerulus.position.z + 4 * Math.sin(2 * Math.PI * t)
+            ));
+          }
+          microGroup.add(new THREE.Line(
+            new THREE.BufferGeometry().setFromPoints(loopPoints),
+            new THREE.LineBasicMaterial({ color: 0xbe9cff, transparent: true, opacity: 0.58 })
+          ));
+        }
+        kidneyGroup.add(microGroup);
+        kidneyGroup.userData.surface = kMesh;
+        kidneyGroup.userData.micro = microGroup;
+        kidneyGroup.userData.side = side;
+
+        // Renal Pelvis & Ureter tube
+        const ureterPoints = [
+          new THREE.Vector3(0, 0, 0),
+          new THREE.Vector3(-x * 0.4, -60, 10),
+          new THREE.Vector3(-x, -110, 20)
+        ];
+        const ureterGeo = new THREE.BufferGeometry().setFromPoints(ureterPoints);
+        const ureterLine = new THREE.Line(ureterGeo, new THREE.LineBasicMaterial({ color: 0xffc66b, transparent: true, opacity: 0.6 }));
+        kidneyGroup.add(ureterLine);
+
+        return kidneyGroup;
+      };
+
+      leftKidney3D = makeKidney('left', -100, 0, 0, 0.15);
+      rightKidney3D = makeKidney('right', 100, -10, 0, -0.15);
+      kidneys3DGroup.add(leftKidney3D, rightKidney3D);
+
+      // Urinary Bladder at base
+      const bladderGeo = new THREE.SphereGeometry(18, 16, 12);
+      bladderGeo.scale(1.0, 0.8, 0.9);
+      const bladderMat = new THREE.MeshPhongMaterial({ color: 0xffc66b, emissive: 0x573e0c, transparent: true, opacity: 0.65 });
+      const bladderMesh = new THREE.Mesh(bladderGeo, bladderMat);
+      bladderMesh.position.set(0, -110, 0);
+      kidneys3DGroup.add(bladderMesh);
+
+      model.add(kidneys3DGroup);
+
+      // 4. Systemic Vascular Tree & Blood Particles
+      vessels3DGroup = new THREE.Group();
+
+      // Major Blood Vessels (Aorta & Vena Cava)
+      const aortaCurve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-8, -280, 20),
+        new THREE.Vector3(-5, -230, 10),
+        new THREE.Vector3(0, -120, 0),
+        new THREE.Vector3(0, -50, 0),
+        new THREE.Vector3(0, -120, 0),
+        new THREE.Vector3(5, -260, -10),
+        new THREE.Vector3(5, -400, -15),
+        new THREE.Vector3(5, -480, -20),
+        new THREE.Vector3(-80, -480, -20),
+        new THREE.Vector3(5, -480, -20),
+        new THREE.Vector3(80, -490, -20)
+      ]);
+
+      const aortaTubeGeo = new THREE.TubeGeometry(aortaCurve, 64, 4.5, 8, false);
+      const aortaMat = new THREE.MeshPhongMaterial({
+        color: 0xff3b5c,
+        emissive: 0x75081c,
+        emissiveIntensity: 0.4,
+        transparent: true,
+        opacity: 0.78
+      });
+      const aortaMesh = new THREE.Mesh(aortaTubeGeo, aortaMat);
+      vessels3DGroup.add(aortaMesh);
+
+      // Vena Cava (Venous return)
+      const venaCavaCurve = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(18, -480, -20),
+        new THREE.Vector3(18, -380, -15),
+        new THREE.Vector3(22, -290, 5),
+        new THREE.Vector3(15, -120, 0),
+        new THREE.Vector3(0, -50, 0)
+      ]);
+      const venaCavaTubeGeo = new THREE.TubeGeometry(venaCavaCurve, 48, 4.8, 8, false);
+      const venaCavaMat = new THREE.MeshPhongMaterial({
+        color: 0x3a86ff,
+        emissive: 0x082669,
+        emissiveIntensity: 0.4,
+        transparent: true,
+        opacity: 0.78
+      });
+      const venaCavaMesh = new THREE.Mesh(venaCavaTubeGeo, venaCavaMat);
+      vessels3DGroup.add(venaCavaMesh);
+
+      // Pulmonary Loop Vessels (Heart <-> Lungs)
+      const pulmonaryPoints = [
+        new THREE.Vector3(8, -285, 25),
+        new THREE.Vector3(-70, -295, 10),
+        new THREE.Vector3(-140, -310, 0),
+        new THREE.Vector3(-140, -310, 0),
+        new THREE.Vector3(-70, -305, -5),
+        new THREE.Vector3(-15, -290, -5),
+        new THREE.Vector3(8, -285, 25),
+        new THREE.Vector3(70, -295, 10),
+        new THREE.Vector3(140, -310, 0),
+        new THREE.Vector3(140, -310, 0),
+        new THREE.Vector3(70, -305, -5),
+        new THREE.Vector3(-15, -290, -5)
+      ];
+      const pulmonaryLineGeo = new THREE.BufferGeometry().setFromPoints(pulmonaryPoints);
+      const pulmonaryLine = new THREE.LineSegments(pulmonaryLineGeo, new THREE.LineBasicMaterial({ color: 0x8338ec, transparent: true, opacity: 0.7 }));
+      vessels3DGroup.add(pulmonaryLine);
+
+      // Blood Flow Particles (180 particles)
+      bloodParticlesGroup = new THREE.Group();
+      bloodSplines = [
+        new THREE.CatmullRomCurve3([
+          new THREE.Vector3(-8, -320, 20),
+          new THREE.Vector3(-5, -230, 10),
+          new THREE.Vector3(-20, -120, 0),
+          new THREE.Vector3(0, 0, 0),
+          new THREE.Vector3(20, -120, 0),
+          new THREE.Vector3(22, -290, 5),
+          new THREE.Vector3(18, -330, 15),
+          new THREE.Vector3(-8, -320, 20)
+        ], true),
+        new THREE.CatmullRomCurve3([
+          new THREE.Vector3(-8, -320, 20),
+          new THREE.Vector3(5, -400, -15),
+          new THREE.Vector3(-80, -480, -20),
+          new THREE.Vector3(5, -480, -20),
+          new THREE.Vector3(18, -380, -15),
+          new THREE.Vector3(22, -290, 5),
+          new THREE.Vector3(-8, -320, 20)
+        ], true),
+        new THREE.CatmullRomCurve3([
+          new THREE.Vector3(18, -330, 15),
+          new THREE.Vector3(8, -285, 25),
+          new THREE.Vector3(-140, -310, 0),
+          new THREE.Vector3(-15, -290, -5),
+          new THREE.Vector3(-8, -320, 20),
+          new THREE.Vector3(18, -330, 15)
+        ], true)
+      ];
+
+      bloodParticles = [];
+      const particleGeo = new THREE.SphereGeometry(2.4, 8, 6);
+      const artMat = new THREE.MeshBasicMaterial({ color: 0xff597b });
+      const venMat = new THREE.MeshBasicMaterial({ color: 0x59a5ff });
+
+      for (let i = 0; i < 180; i++) {
+        const splineIdx = i % bloodSplines.length;
+        const mat = (i % 3 === 0) ? venMat : artMat;
+        const mesh = new THREE.Mesh(particleGeo, mat);
+        mesh.userData = {
+          splineIdx,
+          progress: Math.random()
+        };
+        bloodParticles.push(mesh);
+        bloodParticlesGroup.add(mesh);
+      }
+      vessels3DGroup.add(bloodParticlesGroup);
+
+      model.add(vessels3DGroup);
+    }
+
+    function setAttributeColor(attribute, index, color) {
+      const offset = index * 6;
+      attribute.array[offset] = color.r;
+      attribute.array[offset + 1] = color.g;
+      attribute.array[offset + 2] = color.b;
+      attribute.array[offset + 3] = color.r;
+      attribute.array[offset + 4] = color.g;
+      attribute.array[offset + 5] = color.b;
+    }
+
+    function updateFrame(frame) {
+      if (!frame || !geometryData || !neuronMesh) return;
+      frameData = frame;
+      frame.neurons.forEach((neuron, index) => {
+        const staticNeuron = geometryData.neurons[index];
+        const mode = $('color-select').value;
+        let base = roleColors[staticNeuron.role] || roleColors.excitatory;
+        const commandedDirection = robotWorldData?.neural?.selected_direction;
+        if (staticNeuron.role === 'motor' && motorDirectionById.get(staticNeuron.id) === commandedDirection) {
+          base = new THREE.Color(0xffc66b);
+        }
+        if (mode === 'subtype') base = subtypeColors[staticNeuron.subtype] || base;
+        if (mode === 'ions') {
+          const excess = Math.max(0, Math.min(1, (Number(neuron.k_mm) - 3.5) / 4.5));
+          base = new THREE.Color(0x4c88ff).lerp(new THREE.Color(0xff4e66), excess);
+        }
+        if (mode === 'atp') {
+          const available = Math.max(0, Math.min(1, Number(neuron.atp)));
+          base = new THREE.Color(0xff5368).lerp(new THREE.Color(0x72f3b2), available);
+        }
+        temporaryColor.copy(neuron.active ? base : inactiveColor);
+        if (neuron.spiking) temporaryColor.lerp(spikeColor, 0.9);
+        else temporaryColor.lerp(spikeColor, Math.min(0.36, neuron.rate_hz / 85));
+        if (index === selectedNeuron) temporaryColor.lerp(spikeColor, 0.5);
+        neuronMesh.setColorAt(index, temporaryColor);
+        const scale = neuron.spiking ? 1.46 : 1 + Math.min(0.18, neuron.rate_hz / 120);
+        temporaryMatrix.compose(point(staticNeuron.soma), new THREE.Quaternion(), new THREE.Vector3(scale, scale, scale));
+        neuronMesh.setMatrixAt(index, temporaryMatrix);
+        if (ecsMesh) {
+          const excess = Math.max(0, Math.min(1, (Number(neuron.k_mm) - 3.5) / 4.5));
+          const ecsColor = new THREE.Color(0x326dff).lerp(new THREE.Color(0xff3158), excess);
+          ecsMesh.setColorAt(index, ecsColor);
+          const ecsScale = 0.75 + Math.max(0, Math.min(0.8, excess * 0.8));
+          temporaryMatrix.compose(point(staticNeuron.soma), new THREE.Quaternion(), new THREE.Vector3(ecsScale, ecsScale, ecsScale));
+          ecsMesh.setMatrixAt(index, temporaryMatrix);
+        }
+      });
+      neuronMesh.instanceColor.needsUpdate = true;
+      neuronMesh.instanceMatrix.needsUpdate = true;
+      if (ecsMesh) {
+        ecsMesh.instanceColor.needsUpdate = true;
+        ecsMesh.instanceMatrix.needsUpdate = true;
+      }
+
+      const dendriteColor = dendriteLines.geometry.getAttribute('color');
+      frame.dendrites.forEach((segment, index) => {
+        const activation = Math.min(1, Math.max(0, segment.calcium * 4));
+        temporaryColor.set(0x388fa4).lerp(new THREE.Color(0x59e1ff), activation);
+        if (segment.spiking) temporaryColor.set(0xffffff);
+        if (segment.energy < 0.35) temporaryColor.lerp(damagedColor, 0.65);
+        setAttributeColor(dendriteColor, index, temporaryColor);
+      });
+      dendriteColor.needsUpdate = true;
+
+      const axonColor = axonLines.geometry.getAttribute('color');
+      frame.axons.forEach((axon, index) => {
+        const active = axon.active;
+        temporaryColor.set(active ? 0x72f3b2 : 0x244253);
+        if (axon.myelin > 0.8) temporaryColor.lerp(new THREE.Color(0xbe9cff), 0.45);
+        if (axon.degraded) temporaryColor.set(0xff5368);
+        setAttributeColor(axonColor, index, temporaryColor);
+      });
+      axonColor.needsUpdate = true;
+
+      signalPool.forEach((mesh) => { mesh.visible = false; });
+      frame.signals.slice(0, signalPool.length).forEach((signal, index) => {
+        const axon = axonById.get(signal.synapse);
+        if (!axon) return;
+        const mesh = signalPool[index];
+        mesh.visible = true;
+        mesh.position.lerpVectors(point(axon.start), point(axon.end), signal.progress);
+        mesh.scale.setScalar(0.8 + Math.min(1.5, signal.amplitude * 5));
+      });
+
+      frame.astrocytes.forEach((cell, index) => {
+        const mesh = astrocyteMeshes[index];
+        if (!mesh) return;
+        const scale = 0.92 + Math.min(0.32, cell.calcium * 1.2);
+        mesh.userData.core.scale.setScalar(scale);
+        mesh.userData.core.material.emissiveIntensity = 0.12 + Math.min(0.65, cell.demand * 0.6);
+      });
+      frame.oligodendrocytes.forEach((cell, index) => {
+        const mesh = oligodendrocyteMeshes[index];
+        if (!mesh) return;
+        mesh.scale.setScalar(0.86 + Math.min(0.35, cell.reserve * 0.25 + cell.remodeling * 0.5));
+        mesh.material.emissiveIntensity = 0.15 + Math.min(0.7, cell.remodeling * 2);
+      });
+      frame.microglia.forEach((cell, index) => {
+        const mesh = microgliaMeshes[index];
+        if (!mesh) return;
+        const scale = 0.9 + Math.min(0.55, cell.activation * 0.45 + cell.damage * 0.3);
+        mesh.scale.setScalar(scale);
+        mesh.userData.core.material.color.set(cell.damage > 0.1 ? 0xff5368 : 0xffc66b);
+        mesh.userData.core.material.emissiveIntensity = 0.12 + Math.min(0.8, cell.activation * 0.6);
+      });
+      frame.capillaries.forEach((vessel, index) => {
+        const mesh = capillaryMeshes[index];
+        if (!mesh) return;
+        mesh.scale.setScalar(0.75 + Math.min(0.5, vessel.flow * 0.35));
+      });
+      updateDashboard(frame);
+      updateSelection();
+    }
+
+    function format(value, digits = 2) {
+      return Number.isFinite(Number(value)) ? Number(value).toFixed(digits) : '—';
+    }
+    function percent(value) { return `${format(Number(value) * 100, 1)} %`; }
+    function setText(id, value) { const el = $(id); if (el) el.textContent = value; }
+    function setBar(id, value) { const el = $(id); if (el) el.style.width = `${Math.max(0, Math.min(100, Number(value) * 100))}%`; }
+
+    function updateDashboard(frame) {
+      setText('m-step', frame.step.toLocaleString('de-DE'));
+      setText('m-experiences', frame.experiences.toLocaleString('de-DE'));
+      setText('m-spikes', frame.metrics.total_spikes.toLocaleString('de-DE'));
+      setText('m-synapses', frame.metrics.active_synapses.toLocaleString('de-DE'));
+      setText('m-myelin', format(frame.biology.myelin_coverage * 100, 1));
+      setText('m-delay', format(frame.biology.effective_delay_ms, 2));
+      setText('m-atp', format(frame.physiology.atp * 100, 1));
+      setText('m-sleep', String(frame.physiology.sleep_stage || 'wake').toUpperCase());
+      setText('b-oxygen', percent(frame.biology.oxygen));
+      setText('b-glucose', percent(frame.biology.glucose));
+      setText('b-energy', percent(frame.metrics.mean_energy));
+      setText('b-reserve', percent(frame.biology.oligodendrocyte_reserve));
+      setText('b-velocity', `${format(frame.biology.conduction_velocity_mps, 3)} m/s`);
+      setText('b-micro', format(frame.biology.microglia_activation, 3));
+      setText('b-dspikes', frame.biology.dendritic_spikes.toLocaleString('de-DE'));
+      const volumeRatio = Number(frame.biology.tissue_volume_ratio || 1);
+      setText('g-volume', `${format(volumeRatio * 100, 1)} %`);
+      setText('g-linear', `${format(Number(frame.biology.linear_expansion || 1) * 100, 2)} %`);
+      setText('g-mass', `${format(frame.biology.effective_tissue_mass_ng, 1)} ng / ${Number(frame.biology.net_biomass_change_ng || 0) >= 0 ? '+' : ''}${format(frame.biology.net_biomass_change_ng, 1)} ng`);
+      setText('g-packing', percent(frame.biology.solid_packing_fraction));
+      setText('g-ecs', percent(frame.biology.ecs_fraction));
+      setText('g-pressure', `${format(frame.biology.tissue_pressure_kpa, 3)} kPa`);
+      setText('g-material', percent(frame.biology.material_reserve));
+      setText('g-synapses', `${Number(frame.biology.baseline_active_synapses || 0).toLocaleString('de-DE')} / ${Number(frame.biology.mechanics_active_synapses || 0).toLocaleString('de-DE')}`);
+      setText('g-limited', Number(frame.biology.growth_limited_events || 0).toLocaleString('de-DE'));
+      setBar('bar-growth', Math.min(1, Math.max(0, (volumeRatio - 1) / 0.5)));
+      setBar('bar-material', frame.biology.material_reserve);
+      setBar('bar-oxygen', frame.biology.oxygen);
+      setBar('bar-glucose', frame.biology.glucose);
+      setBar('bar-energy', frame.metrics.mean_energy);
+      setBar('bar-reserve', frame.biology.oligodendrocyte_reserve);
+      setText('x-atp', percent(frame.physiology.atp));
+      setText('x-pump', percent(frame.physiology.pump));
+      setText('x-k', `${format(frame.physiology.k_mm, 4)} mM`);
+      setText('x-ca', `${format(frame.physiology.ca_mm, 4)} mM`);
+      setText('x-sleep', String(frame.physiology.sleep_stage || 'wake').toUpperCase());
+      setText('x-clock', `${format(frame.physiology.circadian_hours, 2)} h`);
+      setText('x-glymph', percent(frame.physiology.glymphatic_clearance));
+      setText('x-creb', `${format(frame.physiology.creb, 3)} / ${format(frame.physiology.protein, 3)}`);
+      setText('x-tags', `${frame.physiology.tagged_synapses.toLocaleString('de-DE')} · Ø ${format(frame.physiology.synaptic_tag, 3)}`);
+      setText('x-rhythm', `${format(frame.physiology.gamma_power, 3)} / ${format(frame.physiology.theta_power, 3)}`);
+      setBar('bar-atp', frame.physiology.atp);
+      setBar('bar-pump', frame.physiology.pump);
+      setText('p-assembly', frame.current_assembly || '—');
+      setText('p-prediction', frame.prospection.predicted_assembly || '—');
+      setText('p-confidence', percent(frame.prospection.confidence));
+      setText('p-surprise', format(frame.prospection.surprise, 3));
+      const directionNames = ['NORD', 'OST', 'SÜD', 'WEST'];
+      setText('p-motor', robotWorldData?.neural?.selected_name
+        ? directionLabel(robotWorldData.neural.selected_name)
+        : directionNames[Number(frame.motor?.selected_direction || 0)]);
+      setText('p-motor-confidence', percent(
+        robotWorldData?.neural?.motor_confidence ?? frame.motor?.confidence ?? 0
+      ));
+    }
+
+    function updateSelection() {
+      if (selectedNeuron === null || !frameData || !geometryData) return;
+      const neuron = frameData.neurons[selectedNeuron];
+      const geometry = geometryData.neurons[selectedNeuron];
+      if (!neuron || !geometry) return;
+      const outgoing = geometryData.axons
+        .map((axon, index) => ({ ...axon, live: frameData.axons[index] }))
+        .filter((axon) => axon.pre === selectedNeuron && axon.live?.active);
+      const meanLength = outgoing.length ? outgoing.reduce((sum, axon) => sum + axon.length_um, 0) / outgoing.length : 0;
+      const meanDelay = outgoing.length ? outgoing.reduce((sum, axon) => sum + axon.live.delay_ms, 0) / outgoing.length : 0;
+      const soma = geometry.soma.map((value) => Math.round(value)).join(', ');
+      $('selection').innerHTML = `
+        <strong>Neuron ${selectedNeuron + 1}</strong> · ${geometry.subtype || geometry.role}<br>
+        Soma: ${soma} µm<br>
+        Membran: ${format(neuron.soma_mv, 1)} mV · Dendrit: ${format(neuron.dendrite_mv, 1)} mV<br>
+        Rate: ${format(neuron.rate_hz, 2)} Hz · ATP: ${percent(neuron.atp)} · Pumpe: ${percent(neuron.pump)}<br>
+        ECS: Na⁺ ${format(neuron.na_mm, 2)} · K⁺ ${format(neuron.k_mm, 4)} · Ca²⁺ ${format(neuron.ca_mm, 4)} mM<br>
+        HCN ${format(neuron.hcn, 2)} · Kv ${format(neuron.kv, 2)} · CREB ${format(neuron.creb, 3)} · Protein ${format(neuron.protein, 3)}<br>
+        ${outgoing.length} aktive Axone · Ø ${format(meanLength, 0)} µm · ${format(meanDelay, 2)} ms
+      `;
+    }
+
+    function clearThreeGroup(group) {
+      while (group.children.length) {
+        const child = group.children.pop();
+        child.traverse((object) => {
+          if (object.geometry) object.geometry.dispose();
+          if (object.material) disposeMaterial(object.material);
+        });
+      }
+    }
+
+    function robotPoint(position, elevation = 0) {
+      const world = robotWorldData.world;
+      return new THREE.Vector3(
+        (Number(position[0]) - (world.width - 1) / 2) * robotCell,
+        elevation,
+        (Number(position[2] ?? position[1]) - (world.depth - 1) / 2) * robotCell
+      );
+    }
+
+    function makeRobotModel() {
+      const group = new THREE.Group();
+      const bodyMaterial = new THREE.MeshBasicMaterial({ color: 0x59e1ff });
+      const darkMaterial = new THREE.MeshBasicMaterial({ color: 0x254c5d });
+      const accentMaterial = new THREE.MeshBasicMaterial({ color: 0x72f3b2 });
+      const body = new THREE.Mesh(new THREE.BoxGeometry(24, 8, 30), bodyMaterial);
+      body.position.y = 9;
+      body.castShadow = true;
+      body.userData.normalColor = new THREE.Color(0x59e1ff);
+      group.add(body);
+      const cabin = new THREE.Mesh(new THREE.BoxGeometry(18, 11, 15), darkMaterial);
+      cabin.position.set(0, 17, 2);
+      cabin.castShadow = true;
+      group.add(cabin);
+      const head = new THREE.Mesh(new THREE.SphereGeometry(7, 18, 12), accentMaterial);
+      head.position.set(0, 27, -2);
+      head.castShadow = true;
+      group.add(head);
+      const sensorGeometry = new THREE.SphereGeometry(1.8, 10, 8);
+      [-3.2, 3.2].forEach((x) => {
+        const sensor = new THREE.Mesh(sensorGeometry, new THREE.MeshBasicMaterial({ color: 0xffffff }));
+        sensor.position.set(x, 28.2, -7.4);
+        group.add(sensor);
+      });
+      const wheelGeometry = new THREE.CylinderGeometry(5.1, 5.1, 4.3, 16);
+      [[-13, 7, -9], [13, 7, -9], [-13, 7, 9], [13, 7, 9]].forEach(([x, y, z]) => {
+        const wheel = new THREE.Mesh(wheelGeometry, darkMaterial);
+        wheel.position.set(x, y, z);
+        wheel.rotation.z = Math.PI / 2;
+        wheel.castShadow = true;
+        group.add(wheel);
+      });
+      const direction = new THREE.Mesh(
+        new THREE.ConeGeometry(3.3, 12, 12),
+        new THREE.MeshBasicMaterial({ color: 0xffc66b })
+      );
+      direction.position.set(0, 7, -21);
+      direction.rotation.x = -Math.PI / 2;
+      group.add(direction);
+      group.userData.body = body;
+      return group;
+    }
+
+    function robotMapSignature(data) {
+      const world = data.world;
+      const obstacles = world.obstacles.map((item) => `${item.x},${item.z}`).join(';');
+      return `${world.map_id || 'map-1'}:${world.map_revision || 1}:${world.width}:${world.depth}:${world.start}:${world.goal}:${obstacles}`;
+    }
+
+    function buildRobotWorld(data) {
+      robotWorldData = data;
+      robotFloor = null;
+      clearThreeGroup(robotWorldGroup);
+      clearThreeGroup(robotPathGroup);
+      clearThreeGroup(robotCartographyGroup);
+      const world = data.world;
+      const width = world.width * robotCell;
+      const depth = world.depth * robotCell;
+      const floor = new THREE.Mesh(
+        new THREE.PlaneGeometry(width, depth),
+        new THREE.MeshBasicMaterial({ color: 0x183f4d })
+      );
+      floor.rotation.x = -Math.PI / 2;
+      floor.position.y = -1.5;
+      floor.receiveShadow = true;
+      floor.userData.mapFloor = true;
+      robotFloor = floor;
+      robotWorldGroup.add(floor);
+
+      const gridPositions = [];
+      for (let x = 0; x <= world.width; x += 1) {
+        const px = (x - world.width / 2) * robotCell;
+        gridPositions.push(px, 0, -depth / 2, px, 0, depth / 2);
+      }
+      for (let z = 0; z <= world.depth; z += 1) {
+        const pz = (z - world.depth / 2) * robotCell;
+        gridPositions.push(-width / 2, 0, pz, width / 2, 0, pz);
+      }
+      const gridGeometry = new THREE.BufferGeometry();
+      gridGeometry.setAttribute('position', new THREE.Float32BufferAttribute(gridPositions, 3));
+      robotWorldGroup.add(new THREE.LineSegments(gridGeometry, new THREE.LineBasicMaterial({ color: 0x6ca5b9, transparent: true, opacity: 0.68 })));
+
+      world.obstacles.forEach((obstacle) => {
+        const height = Number(obstacle.height) * robotCell;
+        const block = new THREE.Mesh(
+          new THREE.BoxGeometry(robotCell * 0.82, height, robotCell * 0.82),
+          new THREE.MeshBasicMaterial({ color: 0x456d7d })
+        );
+        block.position.copy(robotPoint([obstacle.x, 0, obstacle.z], height / 2));
+        block.castShadow = true;
+        block.receiveShadow = true;
+        robotWorldGroup.add(block);
+        const edges = new THREE.LineSegments(
+          new THREE.EdgesGeometry(block.geometry),
+          new THREE.LineBasicMaterial({ color: 0x5e8799, transparent: true, opacity: 0.5 })
+        );
+        edges.position.copy(block.position);
+        robotWorldGroup.add(edges);
+      });
+
+      const start = new THREE.Mesh(
+        new THREE.RingGeometry(6, 10, 32),
+        new THREE.MeshBasicMaterial({ color: 0x59e1ff, side: THREE.DoubleSide, transparent: true, opacity: 0.9 })
+      );
+      start.rotation.x = -Math.PI / 2;
+      start.position.copy(robotPoint([world.start[0], 0, world.start[1]], 0.6));
+      robotWorldGroup.add(start);
+
+      const goal = new THREE.Group();
+      goal.position.copy(robotPoint([world.goal[0], 0, world.goal[1]], 0));
+      const beam = new THREE.Mesh(
+        new THREE.CylinderGeometry(5.2, 10, 70, 24, 1, true),
+        new THREE.MeshBasicMaterial({ color: 0x72f3b2, transparent: true, opacity: 0.16, side: THREE.DoubleSide })
+      );
+      beam.position.y = 35;
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(12, 2.2, 10, 36),
+        new THREE.MeshStandardMaterial({ color: 0x72f3b2, emissive: 0x2ca06c })
+      );
+      ring.rotation.x = Math.PI / 2;
+      ring.position.y = 4;
+      goal.add(beam, ring);
+      robotWorldGroup.add(goal);
+
+      const border = new THREE.LineSegments(
+        new THREE.EdgesGeometry(new THREE.BoxGeometry(width, 5, depth)),
+        new THREE.LineBasicMaterial({ color: 0x59e1ff, transparent: true, opacity: 0.22 })
+      );
+      border.position.y = 1.5;
+      robotWorldGroup.add(border);
+
+      robotVisitedMesh = new THREE.InstancedMesh(
+        new THREE.PlaneGeometry(robotCell * 0.65, robotCell * 0.65),
+        new THREE.MeshBasicMaterial({ color: 0x72f3b2, transparent: true, opacity: 0.13, side: THREE.DoubleSide }),
+        world.width * world.depth
+      );
+      robotVisitedMesh.geometry.rotateX(-Math.PI / 2);
+      robotVisitedMesh.count = 0;
+      robotPathGroup.add(robotVisitedMesh);
+
+      robotTrailLine = new THREE.Line(
+        new THREE.BufferGeometry(),
+        new THREE.LineBasicMaterial({ color: 0x59e1ff, transparent: true, opacity: 0.95 })
+      );
+      robotLearnedLine = new THREE.Line(
+        new THREE.BufferGeometry(),
+        new THREE.LineBasicMaterial({ color: 0xbe9cff, transparent: true, opacity: 0.95 })
+      );
+      robotTrailPoints = new THREE.Points(
+        new THREE.BufferGeometry(),
+        new THREE.PointsMaterial({ color: 0x59e1ff, size: 5.5, sizeAttenuation: true, transparent: true, opacity: 0.85 })
+      );
+      robotLearnedPoints = new THREE.Points(
+        new THREE.BufferGeometry(),
+        new THREE.PointsMaterial({ color: 0xbe9cff, size: 7.5, sizeAttenuation: true, transparent: true, opacity: 0.92 })
+      );
+      robotTrailLine.userData.points = robotTrailPoints;
+      robotLearnedLine.userData.points = robotLearnedPoints;
+      robotPathGroup.add(robotTrailLine, robotLearnedLine, robotTrailPoints, robotLearnedPoints);
+      robotModel = makeRobotModel();
+      robotWorldGroup.add(robotModel);
+      robotWorldSignature = robotMapSignature(data);
+    }
+
+    function setRobotPath(line, path, elevation) {
+      const points = path.map((position) => robotPoint(position, elevation));
+      line.geometry.dispose();
+      line.geometry = new THREE.BufferGeometry().setFromPoints(points);
+      if (line.userData.points) {
+        line.userData.points.geometry.dispose();
+        line.userData.points.geometry = new THREE.BufferGeometry().setFromPoints(points);
+      }
+    }
+
+    function updateRobotMap(data) {
+      const signature = robotMapSignature(data);
+      if (!robotWorldData || signature !== robotWorldSignature) buildRobotWorld(data);
+      robotWorldData = data;
+      const targetPosition = robotPoint([data.robot.x, 0, data.robot.z], 0);
+      robotModel.position.copy(targetPosition);
+      robotModel.rotation.y = -Number(data.robot.heading) * Math.PI / 2;
+      const body = robotModel.userData.body;
+      if (data.robot.collision) {
+        body.material.color.set(0xff5368);
+      } else {
+        body.material.color.copy(body.userData.normalColor);
+      }
+      setRobotPath(robotTrailLine, data.trail, 4.0);
+      setRobotPath(robotLearnedLine, data.learned_route, 6.2);
+      const visitedMatrix = new THREE.Matrix4();
+      data.visited.slice(0, robotVisitedMesh.instanceMatrix.count).forEach((position, index) => {
+        visitedMatrix.makeTranslation(...robotPoint(position, 0.25).toArray());
+        robotVisitedMesh.setMatrixAt(index, visitedMatrix);
+      });
+      robotVisitedMesh.count = Math.min(data.visited.length, data.world.width * data.world.depth);
+      robotVisitedMesh.instanceMatrix.needsUpdate = true;
+
+      const training = data.training;
+      $('r-overlay-episode').textContent = training.episode.toLocaleString('de-DE');
+      $('r-overlay-step').textContent = training.episode_steps.toLocaleString('de-DE');
+      $('r-overlay-action').textContent = directionLabel(data.robot.action);
+      $('r-overlay-reward').textContent = format(data.robot.reward, 3);
+      $('r-overlay-map').textContent = data.world.map_name || data.world.map_id || 'Karte';
+      $('active-map-label').textContent = `${data.world.map_name || 'Karte'} · Ortsgedächtnis + sensorische Umweltmatrix`;
+      $('r-episode').textContent = training.episode.toLocaleString('de-DE');
+      $('r-successes').textContent = training.successes.toLocaleString('de-DE');
+      $('r-explored').textContent = percent(training.explored_ratio);
+      $('r-collisions').textContent = training.collisions.toLocaleString('de-DE');
+      $('r-backtracks').textContent = Number(training.episode_backtracks || 0).toLocaleString('de-DE');
+      $('r-loops').textContent = Number(training.episode_loops || 0).toLocaleString('de-DE');
+      $('r-cycle-preventions').textContent = Number(training.episode_cycle_preventions || 0).toLocaleString('de-DE');
+      $('r-revisit-ratio').textContent = percent(Number(training.revisit_ratio || 0));
+      $('r-best').textContent = training.best_steps == null ? 'noch offen' : `${training.best_steps} Schritte`;
+      $('r-shortest').textContent = `${data.world.shortest_steps} Schritte`;
+      $('r-efficiency').textContent = percent(training.route_efficiency);
+      $('r-epsilon-label').textContent = training.controller === 'hybrid_reward'
+        ? 'Exploration ε'
+        : 'Exploration ε (nur Hybrid)';
+      $('r-epsilon').textContent = training.controller === 'hybrid_reward'
+        ? format(training.epsilon, 3)
+        : 'inaktiv';
+      setBar('bar-r-explored', training.explored_ratio);
+      setBar('bar-r-efficiency', training.route_efficiency);
+      $('r-front').textContent = `${data.sensors.front} Zellen`;
+      $('r-left').textContent = `${data.sensors.left} Zellen`;
+      $('r-right').textContent = `${data.sensors.right} Zellen`;
+      $('r-light').textContent = percent(data.sensors.goal_light);
+      $('r-battery').textContent = percent(data.robot.battery);
+      $('r-reward').textContent = format(data.robot.reward, 3);
+      setBar('bar-r-light', data.sensors.goal_light);
+      setBar('bar-r-battery', data.robot.battery);
+      $('r-control').textContent = controllerLabel(data.neural.control_source);
+      $('r-motor-n').textContent = percent(data.neural.motor_activity[0]);
+      $('r-motor-e').textContent = percent(data.neural.motor_activity[1]);
+      $('r-motor-s').textContent = percent(data.neural.motor_activity[2]);
+      $('r-motor-w').textContent = percent(data.neural.motor_activity[3]);
+      $('r-assembly').textContent = data.neural.assembly || '—';
+      $('r-prediction').textContent = data.neural.predicted_assembly || '—';
+      $('r-confidence').textContent = percent(data.neural.confidence);
+      $('r-error').textContent = format(data.neural.prediction_error, 3);
+      const spatialMemory = frameData?.spatial_memory || {};
+      $('r-place-engrams').textContent = Number(spatialMemory.engrams || 0).toLocaleString('de-DE');
+      $('r-place-familiarity').textContent = percent(spatialMemory.familiarity || 0);
+      $('r-place-visits').textContent = Number(spatialMemory.current_visits || 0).toLocaleString('de-DE');
+      $('r-memory-direction').textContent = directionLabel(
+        ['north', 'east', 'south', 'west'][Number(spatialMemory.preferred_direction || 0)] || 'north'
+      );
+      $('r-memory-confidence').textContent = percent(spatialMemory.confidence || 0);
+      $('r-failed-paths').textContent = Number(spatialMemory.failed_consolidations || 0).toLocaleString('de-DE');
+      $('r-avoidance').textContent = percent(Math.max(0, ...(spatialMemory.avoidance_value || [0])));
+      $('r-safety').textContent = data.safety?.intervened ? `STOPP · ${data.safety.reason}` : 'FREI';
+      $('r-safety-count').textContent = Number(data.safety?.interventions || 0).toLocaleString('de-DE');
+      $('p-motor').textContent = directionLabel(data.neural.selected_name || '—');
+      $('p-motor-confidence').textContent = percent(data.neural.motor_confidence);
+      const routeStatus = $('robot-route-status');
+      routeStatus.className = `status ${training.route_complete ? 'live' : ''}`;
+      routeStatus.querySelector('span').textContent = training.route_complete
+        ? `Route gelernt · ${training.successes} Ziel${training.successes === 1 ? '' : 'e'}`
+        : `Wegsuche · ${training.states_explored} Zellen erkundet`;
+    }
+
+    function updateEnvironmentMap(data) {
+      if (!robotWorldData || !data?.available) return;
+      clearThreeGroup(robotCartographyGroup);
+      const voxels = Array.isArray(data.voxels) ? data.voxels : [];
+      const free = voxels.filter((voxel) => voxel.state === 'free').slice(0, 30000);
+      const occupied = voxels.filter((voxel) => voxel.state === 'occupied').slice(0, 10000);
+      const worldCellSize = Math.max(0.001, Number(robotWorldData.world.cell_size || 1));
+      const voxelSceneSize = Math.max(
+        1.4, Number(data.voxel_size_m || 0.5) / worldCellSize * robotCell
+      );
+      const matrix = new THREE.Matrix4();
+      const scenePosition = (voxel, y) => {
+        const center = voxel.center_m || [0, 0, 0];
+        const gridX = Number(center[0]) / worldCellSize - 0.5;
+        const gridZ = Number(center[2]) / worldCellSize - 0.5;
+        return robotPoint([gridX, 0, gridZ], y);
+      };
+
+      if (free.length) {
+        const freeMesh = new THREE.InstancedMesh(
+          new THREE.PlaneGeometry(voxelSceneSize * 0.84, voxelSceneSize * 0.84),
+          new THREE.MeshBasicMaterial({
+            color: 0x59e1ff, transparent: true, opacity: 0.16,
+            side: THREE.DoubleSide, depthWrite: false
+          }),
+          free.length
+        );
+        freeMesh.geometry.rotateX(-Math.PI / 2);
+        free.forEach((voxel, index) => {
+          matrix.makeTranslation(...scenePosition(voxel, 0.55).toArray());
+          freeMesh.setMatrixAt(index, matrix);
+        });
+        freeMesh.instanceMatrix.needsUpdate = true;
+        robotCartographyGroup.add(freeMesh);
+      }
+
+      if (occupied.length) {
+        const height = Math.max(4.0, voxelSceneSize * 0.38);
+        const occupiedMesh = new THREE.InstancedMesh(
+          new THREE.BoxGeometry(voxelSceneSize * 0.72, height, voxelSceneSize * 0.72),
+          new THREE.MeshBasicMaterial({
+            color: 0xffc66b, transparent: true, opacity: 0.76, depthWrite: false
+          }),
+          occupied.length
+        );
+        occupied.forEach((voxel, index) => {
+          matrix.makeTranslation(...scenePosition(voxel, height / 2 + 0.75).toArray());
+          occupiedMesh.setMatrixAt(index, matrix);
+        });
+        occupiedMesh.instanceMatrix.needsUpdate = true;
+        robotCartographyGroup.add(occupiedMesh);
+      }
+
+      const semanticFindings = occupied.filter((voxel) => voxel.semantic_label).length;
+      setText('r-map-voxels', Number(data.summary?.mapped || voxels.length).toLocaleString('de-DE'));
+      setText('r-map-free', Number(data.summary?.free || free.length).toLocaleString('de-DE'));
+      setText('r-map-occupied', Number(data.summary?.occupied || occupied.length).toLocaleString('de-DE'));
+      setText('r-map-semantics', semanticFindings.toLocaleString('de-DE'));
+      $('robot-scene-note').textContent = 'Cyan-Flächen: sensorisch als frei kartografiert · Orange: erkannte Belegung/Funde · Cyan-Linie: gefahren · Violett: gelernte Route';
+    }
+
+    const layerObjects = () => ({
+      dendrites: dendriteLines,
+      axons: axonLines,
+      signals: signalGroup,
+      ecs: ecsMesh,
+      astrocytes: astrocyteGroup,
+      oligodendrocytes: oligodendrocyteGroup,
+      microglia: microgliaGroup,
+      capillaries: capillaryGroup,
+      tissue: tissueEnvelopeGroup,
+      heart3d: heart3DGroup,
+      lungs3d: lungs3DGroup,
+      kidneys3d: kidneys3DGroup,
+      vessels3d: vessels3DGroup
+    });
+    function applyLayers() {
+      const objects = layerObjects();
+      const brainOnly = currentViewFocus === 'brain';
+      const organOnly = ['heart', 'lungs', 'kidneys'].includes(currentViewFocus);
+      document.querySelectorAll('[data-layer]').forEach((input) => {
+        const key = input.dataset.layer;
+        let focusVisible = true;
+        if (brainOnly) focusVisible = !['heart3d', 'lungs3d', 'kidneys3d', 'vessels3d'].includes(key);
+        if (organOnly) {
+          const wanted = currentViewFocus === 'heart' ? 'heart3d'
+            : currentViewFocus === 'lungs' ? 'lungs3d' : 'kidneys3d';
+          focusVisible = key === wanted || key === 'vessels3d';
+        }
+        if (objects[key]) objects[key].visible = input.checked && focusVisible;
+      });
+      if (neuronMesh) neuronMesh.visible = !organOnly;
+    }
+    document.querySelectorAll('[data-layer]').forEach((input) => input.addEventListener('change', applyLayers));
+    $('color-select').addEventListener('change', () => updateFrame(frameData));
+    $('view-focus-select').addEventListener('change', (e) => {
+      const mode = e.target.value;
+      currentViewFocus = mode;
+      if (mode === 'organism') {
+        controls.target.set(0, -220, 0);
+        camera.position.set(0, -140, 1150);
+      } else if (mode === 'brain') {
+        controls.target.set(0, 0, 0);
+        camera.position.set(0, 40, 750);
+      } else if (mode === 'heart') {
+        controls.target.set(0, -320, 20);
+        camera.position.set(0, -310, 360);
+      } else if (mode === 'lungs') {
+        controls.target.set(0, -310, 0);
+        camera.position.set(0, -290, 520);
+      } else if (mode === 'kidneys') {
+        controls.target.set(0, -480, -20);
+        camera.position.set(0, -470, 420);
+      }
+      applyLayers();
+      controls.update();
+    });
+
+    function zoomCurrentView(factor) {
+      const offset = camera.position.clone().sub(controls.target).multiplyScalar(factor);
+      const distance = Math.max(85, Math.min(1800, offset.length()));
+      offset.setLength(distance);
+      camera.position.copy(controls.target).add(offset);
+      controls.update();
+    }
+    $('zoom-in-button').addEventListener('click', () => zoomCurrentView(0.72));
+    $('zoom-out-button').addEventListener('click', () => zoomCurrentView(1.38));
+
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+    let pointerDown = null;
+    canvas.addEventListener('pointerdown', (event) => { pointerDown = { x: event.clientX, y: event.clientY }; });
+    canvas.addEventListener('pointerup', (event) => {
+      if (!pointerDown || Math.hypot(event.clientX - pointerDown.x, event.clientY - pointerDown.y) > 5 || !neuronMesh) return;
+      const rect = canvas.getBoundingClientRect();
+      pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+      raycaster.setFromCamera(pointer, camera);
+      const hit = raycaster.intersectObject(neuronMesh, false)[0];
+      selectedNeuron = hit && Number.isInteger(hit.instanceId) ? hit.instanceId : null;
+      if (selectedNeuron === null) $('selection').textContent = 'Klicke ein Soma im 3D-Modell an.';
+      updateFrame(frameData);
+    });
+
+    function setConnection(mode, label) {
+      const container = $('connection-status');
+      container.className = `status ${mode}`;
+      $('status-label').textContent = label;
+    }
+    function showError(message) {
+      const banner = $('error-banner');
+      banner.textContent = message || '';
+      banner.classList.toggle('visible', Boolean(message));
+    }
+
+    async function getJson(path) {
+      const response = await fetch(path, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`${path}: HTTP ${response.status}`);
+      return response.json();
+    }
+    async function postControl(command) {
+      const response = await fetch('/api/control', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(command)
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
+      if (payload.seed !== undefined) {
+        backendStatus = payload;
+        updateStatusUi();
+      }
+      return payload;
+    }
+
+    async function postImaginatio(command) {
+      const response = await fetch('/api/imaginatio/control', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(command)
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
+      return payload;
+    }
+
+    const integratedImaginatioFrame = $('integrated-imaginatio-frame');
+    $('integrated-imaginatio-reload')?.addEventListener('click', () => {
+      integratedImaginatioFrame.src = `/imaginatio-lab/index.html?embedded=1&t=${Date.now()}`;
+    });
+    $('integrated-imaginatio-open')?.addEventListener('click', () => {
+      window.open('/imaginatio-lab/index.html', '_blank', 'noopener');
+    });
+    window.addEventListener('message', (event) => {
+      if (event.origin !== window.location.origin || event.source !== integratedImaginatioFrame?.contentWindow) return;
+      if (event.data?.type !== 'tatarus-imaginatio-height') return;
+      const requested = Number(event.data.height || 0);
+      if (!Number.isFinite(requested) || requested <= 0) return;
+      integratedImaginatioFrame.style.height = `${Math.max(1050, Math.min(2400, requested + 16))}px`;
+    });
+
+    const drawlabSide = 32;
+    const drawlabTargetPixels = new Float64Array(drawlabSide * drawlabSide);
+    const drawlabReplayPixels = new Float64Array(drawlabSide * drawlabSide);
+    const drawlabTargetCanvas = $('drawlab-target');
+    const drawlabOutputCanvas = $('drawlab-output');
+    const drawlabTargetContext = drawlabTargetCanvas.getContext('2d');
+    const drawlabOutputContext = drawlabOutputCanvas.getContext('2d');
+    let drawlabState = null;
+    let drawlabTrace = { events: [], summary: {} };
+    let drawlabBusy = false;
+    let drawlabReplayToken = 0;
+    let drawlabReplaying = false;
+    let drawlabPointerDown = false;
+
+    function drawlabSetPixel(pixels, x, y, value = 1) {
+      const px = Math.round(x);
+      const py = Math.round(y);
+      if (px >= 0 && py >= 0 && px < drawlabSide && py < drawlabSide) {
+        pixels[py * drawlabSide + px] = Math.max(0, Math.min(1, value));
+      }
+    }
+
+    function drawlabLine(pixels, x0, y0, x1, y1, value = 1) {
+      x0 = Math.round(x0); y0 = Math.round(y0); x1 = Math.round(x1); y1 = Math.round(y1);
+      const dx = Math.abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+      const dy = -Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+      let error = dx + dy;
+      for (;;) {
+        drawlabSetPixel(pixels, x0, y0, value);
+        if (x0 === x1 && y0 === y1) break;
+        const twice = 2 * error;
+        if (twice >= dy) { error += dy; x0 += sx; }
+        if (twice <= dx) { error += dx; y0 += sy; }
+      }
+    }
+
+    function drawlabCircle(pixels, cx, cy, radius, start = 0, end = Math.PI * 2) {
+      const steps = Math.max(28, Math.ceil(radius * Math.abs(end - start) * 2));
+      let previous = null;
+      for (let i = 0; i <= steps; i += 1) {
+        const angle = start + (end - start) * i / steps;
+        const point = [cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius];
+        if (previous) drawlabLine(pixels, previous[0], previous[1], point[0], point[1]);
+        previous = point;
+      }
+    }
+
+    const drawlabPresetMetadata = {
+      circle: ['KREIS', 'O'], cross: ['KREUZ', 'X'], triangle: ['DREIECK', '△'],
+      tree: ['BAUM', 'BAUM'], house: ['HAUS', 'HAUS'], moon: ['MOND', 'MOND'],
+      blank: ['', '']
+    };
+
+    function drawlabLoadPreset(name) {
+      drawlabTargetPixels.fill(0);
+      if (name === 'circle') drawlabCircle(drawlabTargetPixels, 15.5, 15.5, 10.5);
+      if (name === 'cross') {
+        drawlabLine(drawlabTargetPixels, 7, 7, 24, 24);
+        drawlabLine(drawlabTargetPixels, 24, 7, 7, 24);
+      }
+      if (name === 'triangle') {
+        drawlabLine(drawlabTargetPixels, 16, 5, 5, 25);
+        drawlabLine(drawlabTargetPixels, 5, 25, 27, 25);
+        drawlabLine(drawlabTargetPixels, 27, 25, 16, 5);
+      }
+      if (name === 'tree') {
+        drawlabLine(drawlabTargetPixels, 15, 26, 15, 15);
+        drawlabLine(drawlabTargetPixels, 16, 26, 16, 15);
+        drawlabLine(drawlabTargetPixels, 15, 18, 8, 12);
+        drawlabLine(drawlabTargetPixels, 16, 18, 24, 10);
+        drawlabLine(drawlabTargetPixels, 15, 14, 11, 8);
+        drawlabLine(drawlabTargetPixels, 16, 14, 20, 6);
+        drawlabLine(drawlabTargetPixels, 11, 27, 20, 27);
+      }
+      if (name === 'house') {
+        drawlabLine(drawlabTargetPixels, 7, 14, 16, 5);
+        drawlabLine(drawlabTargetPixels, 16, 5, 25, 14);
+        drawlabLine(drawlabTargetPixels, 7, 14, 7, 27);
+        drawlabLine(drawlabTargetPixels, 25, 14, 25, 27);
+        drawlabLine(drawlabTargetPixels, 7, 27, 25, 27);
+        drawlabLine(drawlabTargetPixels, 14, 27, 14, 20);
+        drawlabLine(drawlabTargetPixels, 19, 27, 19, 20);
+        drawlabLine(drawlabTargetPixels, 14, 20, 19, 20);
+      }
+      if (name === 'moon') {
+        drawlabCircle(drawlabTargetPixels, 15, 15, 11, Math.PI * .42, Math.PI * 1.58);
+        drawlabCircle(drawlabTargetPixels, 19, 15, 8, Math.PI * .55, Math.PI * 1.45);
+        drawlabLine(drawlabTargetPixels, 13, 5, 18, 7);
+        drawlabLine(drawlabTargetPixels, 13, 25, 18, 23);
+      }
+      const [label, symbol] = drawlabPresetMetadata[name] || ['', ''];
+      $('drawlab-label').value = label;
+      $('drawlab-symbol').value = symbol;
+      drawlabRenderCanvas(drawlabTargetContext, drawlabTargetPixels, '#59e1ff');
+      drawlabUpdateRetina();
+    }
+
+    function drawlabRenderCanvas(context, pixels, accent = '#72f3b2') {
+      const width = context.canvas.width;
+      const height = context.canvas.height;
+      const cellWidth = width / drawlabSide;
+      const cellHeight = height / drawlabSide;
+      context.fillStyle = '#02080d';
+      context.fillRect(0, 0, width, height);
+      context.fillStyle = accent;
+      for (let y = 0; y < drawlabSide; y += 1) {
+        for (let x = 0; x < drawlabSide; x += 1) {
+          const value = Number(pixels[y * drawlabSide + x] || 0);
+          if (value <= .001) continue;
+          context.globalAlpha = .18 + .82 * value;
+          context.fillRect(x * cellWidth, y * cellHeight, cellWidth + .35, cellHeight + .35);
+        }
+      }
+      context.globalAlpha = 1;
+      context.strokeStyle = 'rgba(135,165,180,.08)';
+      context.lineWidth = 1;
+      for (let i = 1; i < drawlabSide; i += 1) {
+        const x = i * cellWidth;
+        const y = i * cellHeight;
+        context.beginPath(); context.moveTo(x, 0); context.lineTo(x, height); context.stroke();
+        context.beginPath(); context.moveTo(0, y); context.lineTo(width, y); context.stroke();
+      }
+    }
+
+    function drawlabUpdateRetina() {
+      const cells = $('drawlab-retina').children;
+      for (let cellY = 0; cellY < 4; cellY += 1) {
+        for (let cellX = 0; cellX < 4; cellX += 1) {
+          let sum = 0;
+          let count = 0;
+          for (let y = cellY * 8; y < (cellY + 1) * 8; y += 1) {
+            for (let x = cellX * 8; x < (cellX + 1) * 8; x += 1) {
+              const index = y * drawlabSide + x;
+              sum += .6 * drawlabTargetPixels[index] + .4 * drawlabReplayPixels[index];
+              count += 1;
+            }
+          }
+          const value = Math.max(0, Math.min(1, sum / count * 4));
+          const cell = cells[cellY * 4 + cellX];
+          if (cell) {
+            cell.style.background = `rgba(89,225,255,${.04 + .88 * value})`;
+            cell.title = `Retina ${cellX + 1}/${cellY + 1}: ${format(value, 2)}`;
+          }
+        }
+      }
+    }
+
+    function drawlabSetCursor(x, y) {
+      const cursor = $('drawlab-cursor');
+      cursor.style.left = `${(Number(x) + .5) / drawlabSide * 100}%`;
+      cursor.style.top = `${(Number(y) + .5) / drawlabSide * 100}%`;
+    }
+
+    function drawlabActivateFlow(name) {
+      ['see', 'neural', 'act', 'canvas'].forEach((part) => {
+        $(`drawlab-flow-${part}`).classList.toggle('active', part === name);
+      });
+    }
+
+    const drawlabActionLabels = {
+      move_north: 'Cursor Nord', move_east: 'Cursor Ost', move_south: 'Cursor Süd',
+      move_west: 'Cursor West', paint: 'Pinsel auftragen', erase: 'Radieren',
+      brighter: 'Pinsel heller', darker: 'Pinsel dunkler', brush_small: 'Pinsel klein',
+      brush_large: 'Pinsel groß'
+    };
+    const drawlabCauseLabels = {
+      demonstrated_motor_trace: 'demonstrierte motorische Spur',
+      recalled_sensorimotor_engram: 'V14-Rekonstruktion aus Self-Motor-/Region-/Stroke-Gedächtnis',
+      coactivated_visual_engrams: 'koaktivierte visuelle Engramme (ältere Spur)',
+      coactivated_five_field_form_synthesis: 'eine neue Fünf-Feld-Form',
+      coactivated_factorized_feature_synthesis: 'Teilmerkmale aus mehreren Erinnerungen',
+      category_five_field_form_synthesis: 'neue gemeinsame Kategoriegeometrie',
+      category_factorized_feature_synthesis: 'gelernte Teilmerkmale neu kombiniert',
+      retinal_reference_and_canvas: 'Retina: Zielbild plus eigene Leinwand',
+      internal_or_symbol_cue: 'interner Gedächtnis- oder Symbolhinweis'
+    };
+
+    function drawlabUpdateNeural(event) {
+      const neural = event?.neural || {};
+      const plasticity = event?.plasticity || {};
+      const metabolism = event?.metabolism || {};
+      const motor = neural.motor || {};
+      setText('drawlab-assembly', neural.active_assembly || '—');
+      setText('drawlab-predicted', neural.predicted_assembly || '—');
+      setText('drawlab-dendrites', Number(neural.dendritic_spikes || 0).toLocaleString('de-DE'));
+      setText('drawlab-recall', percent(neural.sequence_familiarity || 0));
+      setText('drawlab-tags', `${Number(plasticity.tagged_synapses || 0).toLocaleString('de-DE')} / ${format(plasticity.synaptic_tag || 0, 3)}`);
+      setText('drawlab-creb', `${format(plasticity.creb || 0, 3)} / ${format(plasticity.protein || 0, 3)}`);
+      setText('drawlab-prospection', `${format(neural.prospective_activation || 0, 3)} / ${format(neural.prediction_error || 0, 3)}`);
+      setText('drawlab-metabolism', `${percent(metabolism.atp || 0)} / ${percent(metabolism.sleep_pressure || 0)}`);
+      const directions = motor.directional_activity || [0, 0, 0, 0];
+      ['n', 'e', 's', 'w'].forEach((name, index) => {
+        setBar(`drawlab-motor-${name}`, directions[index] || 0);
+        setText(`drawlab-motor-${name}-v`, format(directions[index] || 0, 2));
+      });
+      const cause = drawlabCauseLabels[event?.cause] || event?.cause || '—';
+      setText('drawlab-cause-title', `Kausale Auswahlquelle: ${cause}`);
+      setText('drawlab-cause-detail', event?.action
+        ? 'Der Pinselbefehl stammt aus dieser gespeicherten bzw. demonstrierten Aktionsspur. Die vier Richtungs-Populationen daneben sind der gleichzeitig gemessene Gewebezustand – kein versteckter Bilddecoder.'
+        : 'Die Sensorinformation wurde dem bestehenden Nervensystem angeboten; Assembly und Prospektion zeigen dessen Antwort.');
+    }
+
+    function drawlabHistogram(summary = {}) {
+      const canvasElement = $('drawlab-histogram');
+      const context = canvasElement.getContext('2d');
+      const histogram = summary.action_histogram || {};
+      const keys = ['move_north','move_east','move_south','move_west','paint','erase','brighter','darker','brush_small','brush_large'];
+      const labels = ['N','O','S','W','MAL','RAD','+','−','K','G'];
+      const values = keys.map((key) => Number(histogram[key] || 0));
+      const maximum = Math.max(1, ...values);
+      context.clearRect(0, 0, canvasElement.width, canvasElement.height);
+      context.fillStyle = '#030a10';
+      context.fillRect(0, 0, canvasElement.width, canvasElement.height);
+      const slot = canvasElement.width / keys.length;
+      values.forEach((value, index) => {
+        const height = value / maximum * 70;
+        const gradient = context.createLinearGradient(0, 20, 0, 92);
+        gradient.addColorStop(0, '#59e1ff'); gradient.addColorStop(1, '#be9cff');
+        context.fillStyle = gradient;
+        context.fillRect(index * slot + 10, 88 - height, Math.max(8, slot - 20), height);
+        context.fillStyle = '#87a5b4'; context.font = '11px system-ui'; context.textAlign = 'center';
+        context.fillText(labels[index], index * slot + slot / 2, 105);
+        context.fillStyle = '#e9f8ff'; context.fillText(String(value), index * slot + slot / 2, Math.max(11, 82 - height));
+      });
+    }
+
+    function drawlabPopulateEvents(trace) {
+      const container = $('drawlab-events');
+      container.innerHTML = '';
+      const events = trace?.events || [];
+      if (!events.length) {
+        const empty = document.createElement('div');
+        empty.className = 'causal-event';
+        empty.innerHTML = '<span>—</span><strong>Keine Motorhandlung in dieser Spur</strong><span>Sensorik</span>';
+        container.appendChild(empty);
+        return;
+      }
+      events.slice(-320).forEach((event) => {
+        const row = document.createElement('div');
+        row.className = 'causal-event';
+        row.dataset.sequence = String(event.sequence);
+        const number = document.createElement('span');
+        number.textContent = `#${event.sequence}`;
+        const label = document.createElement('strong');
+        label.textContent = event.action ? (drawlabActionLabels[event.action.kind] || event.action.kind) : 'Sensorfeld aufnehmen';
+        const cause = document.createElement('span');
+        cause.textContent = event.neural?.active_assembly ? `A${event.neural.active_assembly}` : '—';
+        row.append(number, label, cause);
+        container.appendChild(row);
+      });
+    }
+
+    function drawlabUpdateState(state, trace, renderFinal = true) {
+      drawlabState = state;
+      drawlabTrace = trace || { events: [], summary: {} };
+      const result = state?.last_result || {};
+      const analysis = state?.analysis || {};
+      const summary = drawlabTrace.summary || {};
+      setText('drawlab-similarity', percent(result.similarity || 0));
+      setText('drawlab-strokes', Number(summary.strokes || 0).toLocaleString('de-DE'));
+      setText('drawlab-actions-count', Number(result.actions || 0).toLocaleString('de-DE'));
+      setText('drawlab-failures', Number(analysis.failed_attempts || 0).toLocaleString('de-DE'));
+      setText('drawlab-novelty', percent(result.novelty || 0));
+      setText('drawlab-engrams', `${(state?.visual_engrams || []).length} / ${(state?.symbol_engrams || []).length}`);
+      setText('drawlab-repeats', Number(summary.repeated_action_patterns || 0).toLocaleString('de-DE'));
+      const attempts = Math.max(0, Number(analysis.attempts || 0));
+      setText('drawlab-progress', attempts ? percent(Number(analysis.successful_attempts || 0) / attempts) : '—');
+      const featureLabels = { BACKGROUND: 'Hintergrund', UPPER_LEFT: 'oben links', UPPER_CENTER: 'oben Mitte', UPPER_RIGHT: 'oben rechts', MIDDLE_LEFT: 'Mitte links', CENTER: 'Zentrum', MIDDLE_RIGHT: 'Mitte rechts', LOWER_LEFT: 'unten links', LOWER_CENTER: 'unten Mitte', LOWER_RIGHT: 'unten rechts' };
+      const featureSources = result.feature_sources || [];
+      if (featureSources.length) {
+        setText('drawlab-cause-title', 'Kausale Auswahlquelle: getrennte Teilmerkmals-Erinnerungen');
+        setText('drawlab-cause-detail', featureSources.map((item) =>
+          `${featureLabels[item.feature] || item.feature} ← Quelle ${Number(item.source_index) + 1}`).join(' · '));
+      }
+      drawlabHistogram(summary);
+      drawlabPopulateEvents(drawlabTrace);
+      if (renderFinal && state?.canvas?.pixels?.length === drawlabReplayPixels.length) {
+        drawlabReplayPixels.set(state.canvas.pixels);
+        drawlabRenderCanvas(drawlabOutputContext, drawlabReplayPixels);
+        drawlabSetCursor(...(state.canvas.cursor || [16, 16]));
+        drawlabUpdateRetina();
+      }
+    }
+
+    const drawlabWait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, Math.max(8, milliseconds)));
+    async function drawlabReplay() {
+      const events = drawlabTrace?.events || [];
+      if (!events.length) return;
+      const token = ++drawlabReplayToken;
+      const delay = Number($('drawlab-replay-speed').value || 90);
+      const hasActions = events.some((event) => Boolean(event.action));
+      drawlabReplaying = true;
+      if (hasActions) {
+        drawlabReplayPixels.fill(0);
+        drawlabRenderCanvas(drawlabOutputContext, drawlabReplayPixels);
+        drawlabSetCursor(16, 16);
+      }
+      for (const event of events) {
+        if (token !== drawlabReplayToken) break;
+        document.querySelectorAll('#drawlab-events .causal-event').forEach((row) => {
+          row.classList.toggle('current', row.dataset.sequence === String(event.sequence));
+        });
+        const currentRow = document.querySelector(`#drawlab-events [data-sequence="${event.sequence}"]`);
+        currentRow?.scrollIntoView({ block: 'nearest' });
+        if (!event.action) {
+          drawlabActivateFlow('see');
+          setText('drawlab-flow-see-value', event.reference_visible ? 'Zielbild + eigene Leinwand werden retinal gepoolt' : 'Interner bzw. symbolischer Hinweis; kein Zielbild');
+          await drawlabWait(delay * .42);
+          if (token !== drawlabReplayToken) break;
+          drawlabUpdateNeural(event);
+          drawlabActivateFlow('neural');
+          setText('drawlab-flow-neural-value', `Assembly ${event.neural?.active_assembly || '—'} · Prospektion ${event.neural?.predicted_assembly || '—'}`);
+          await drawlabWait(delay * .58);
+          continue;
+        }
+        drawlabUpdateNeural(event);
+        drawlabActivateFlow('neural');
+        setText('drawlab-flow-neural-value', `Assembly ${event.neural?.active_assembly || '—'} · Fehler ${format(event.neural?.prediction_error || 0, 3)}`);
+        await drawlabWait(delay * .25);
+        if (token !== drawlabReplayToken) break;
+        drawlabActivateFlow('act');
+        setText('drawlab-flow-act-value', `${drawlabActionLabels[event.action.kind] || event.action.kind} · ${event.action.repetitions}×`);
+        await drawlabWait(delay * .30);
+        if (token !== drawlabReplayToken) break;
+        (event.changed_pixels || []).forEach(([index, value]) => { drawlabReplayPixels[index] = value; });
+        drawlabSetCursor(...(event.cursor_after || [16, 16]));
+        drawlabRenderCanvas(drawlabOutputContext, drawlabReplayPixels);
+        drawlabUpdateRetina();
+        drawlabActivateFlow('canvas');
+        setText('drawlab-flow-canvas-value', event.changed_pixels?.length
+          ? `${event.changed_pixels.length} Bildpunkt${event.changed_pixels.length === 1 ? '' : 'e'} motorisch verändert`
+          : `Cursor bei ${event.cursor_after?.join(' / ') || '—'}`);
+        await drawlabWait(delay * .45);
+      }
+      if (token === drawlabReplayToken) {
+        drawlabReplaying = false;
+        drawlabActivateFlow('');
+        document.querySelectorAll('#drawlab-events .causal-event').forEach((row) => row.classList.remove('current'));
+        setText('drawlab-operation-status', 'Kausale Spur vollständig: Wahrnehmung, neuronaler Zustand, Motorbefehl und Leinwandänderung bleiben getrennt nachvollziehbar.');
+      }
+    }
+
+    function drawlabSetBusy(busy, message = '') {
+      drawlabBusy = busy;
+      document.querySelectorAll('.drawlab-actions button, #drawlab-reset').forEach((button) => { button.disabled = busy; });
+      const status = $('drawlab-status');
+      status.className = `status ${busy ? '' : 'live'}`;
+      status.querySelector('span').textContent = busy ? 'Nervensystem arbeitet' : 'Zeichenlabor bereit';
+      if (message) setText('drawlab-operation-status', message);
+    }
+
+    async function drawlabRun(action) {
+      if (drawlabBusy) return;
+      drawlabSetBusy(true, 'TATARUS verarbeitet die serielle Wahrnehmungs- und Handlungskette …');
+      showError('');
+      try {
+        const command = { action };
+        if (['learn', 'recall', 'associate_symbol'].includes(action)) command.pixels = Array.from(drawlabTargetPixels);
+        if (action === 'learn') command.text = $('drawlab-label').value;
+        if (['associate_symbol', 'draw_symbol', 'compose'].includes(action)) command.text = $('drawlab-symbol').value;
+        if (action === 'draw_free') command.text = $('drawlab-label').value;
+        const payload = await postImaginatio(command);
+        drawlabUpdateState(payload.imaginatio, payload.trace, false);
+        const motorEvents = payload.trace?.events?.some((event) => Boolean(event.action));
+        if (!motorEvents && payload.imaginatio?.canvas?.pixels) {
+          drawlabReplayPixels.set(payload.imaginatio.canvas.pixels);
+          drawlabRenderCanvas(drawlabOutputContext, drawlabReplayPixels);
+          drawlabUpdateRetina();
+        }
+        setText('drawlab-operation-status', `${payload.label}. Der Roboter bleibt pausiert, damit die neuronale Spur unverändert geprüft werden kann.`);
+        drawlabSetBusy(false);
+        await drawlabReplay();
+      } catch (error) {
+        drawlabSetBusy(false, `Nicht ausgeführt: ${error.message}`);
+        const status = $('drawlab-status');
+        status.className = 'status error';
+        status.querySelector('span').textContent = 'Laborfehler';
+        showError(error.message);
+      }
+    }
+
+    for (let i = 0; i < 16; i += 1) {
+      const cell = document.createElement('i');
+      cell.className = 'retina-cell';
+      $('drawlab-retina').appendChild(cell);
+    }
+    drawlabLoadPreset('circle');
+    drawlabReplayPixels.fill(0);
+    drawlabRenderCanvas(drawlabOutputContext, drawlabReplayPixels);
+    drawlabSetCursor(16, 16);
+
+    $('drawlab-preset').addEventListener('change', (event) => drawlabLoadPreset(event.target.value));
+    $('drawlab-clear-target').addEventListener('click', () => {
+      $('drawlab-preset').value = 'blank';
+      drawlabLoadPreset('blank');
+    });
+    function drawlabPaintTarget(event) {
+      const rect = drawlabTargetCanvas.getBoundingClientRect();
+      const x = Math.floor((event.clientX - rect.left) / rect.width * drawlabSide);
+      const y = Math.floor((event.clientY - rect.top) / rect.height * drawlabSide);
+      drawlabSetPixel(drawlabTargetPixels, x, y, event.buttons === 2 ? 0 : 1);
+      drawlabRenderCanvas(drawlabTargetContext, drawlabTargetPixels, '#59e1ff');
+      drawlabUpdateRetina();
+    }
+    drawlabTargetCanvas.addEventListener('contextmenu', (event) => event.preventDefault());
+    drawlabTargetCanvas.addEventListener('pointerdown', (event) => {
+      drawlabPointerDown = true; drawlabTargetCanvas.setPointerCapture(event.pointerId); drawlabPaintTarget(event);
+    });
+    drawlabTargetCanvas.addEventListener('pointermove', (event) => { if (drawlabPointerDown) drawlabPaintTarget(event); });
+    drawlabTargetCanvas.addEventListener('pointerup', () => { drawlabPointerDown = false; });
+    drawlabTargetCanvas.addEventListener('pointercancel', () => { drawlabPointerDown = false; });
+    $('drawlab-learn').addEventListener('click', () => drawlabRun('learn'));
+    $('drawlab-recall').addEventListener('click', () => drawlabRun('recall'));
+    $('drawlab-associate').addEventListener('click', () => drawlabRun('associate_symbol'));
+    $('drawlab-symbol-draw').addEventListener('click', () => drawlabRun('draw_symbol'));
+    $('drawlab-free').addEventListener('click', () => drawlabRun('draw_free'));
+    $('drawlab-compose').addEventListener('click', () => drawlabRun('compose'));
+    $('drawlab-reset').addEventListener('click', () => drawlabRun('reset_canvas'));
+    $('drawlab-replay').addEventListener('click', () => drawlabReplay());
+    $('drawlab-save').addEventListener('click', () => $('save-snapshot').click());
+    $('drawlab-load').addEventListener('click', () => $('load-snapshot').click());
+    $('drawlab-mode-toggle').addEventListener('click', async () => {
+      try { await postControl({ action: 'evaluation_mode', enabled: !backendStatus.evaluation_mode }); }
+      catch (error) { showError(error.message); }
+    });
+
+    async function drawlabLoop() {
+      try {
+        const [state, trace] = await Promise.all([
+          getJson('/api/imaginatio'), getJson('/api/imaginatio/trace')
+        ]);
+        if (!drawlabBusy && !drawlabReplaying) drawlabUpdateState(state, trace, true);
+        const status = $('drawlab-status');
+        if (!drawlabBusy) {
+          status.className = 'status live';
+          status.querySelector('span').textContent = 'Zeichenlabor bereit';
+        }
+      } catch (error) {
+        const status = $('drawlab-status');
+        status.className = 'status error';
+        status.querySelector('span').textContent = 'nicht verfügbar';
+      } finally {
+        setTimeout(drawlabLoop, 1200);
+      }
+    }
+    function updateMapControls() {
+      const select = $('robot-map-select');
+      const maps = backendStatus.maps || [];
+      const signature = maps.map((item) => `${item.id}:${item.name}:${item.revision}:${item.obstacle_count}`).join('|');
+      if (select.dataset.signature !== signature) {
+        select.innerHTML = '';
+        maps.forEach((item, index) => {
+          const count = Number(item.obstacle_count || 0);
+          select.add(new Option(`${String(index + 1).padStart(2, '0')} · ${item.name} · ${count} Hindernisse`, item.id));
+        });
+        select.dataset.signature = signature;
+      }
+      if (backendStatus.active_map_id) select.value = backendStatus.active_map_id;
+      if (document.activeElement !== $('robot-map-name')) {
+        $('robot-map-name').value = backendStatus.active_map_name || '';
+      }
+    }
+    function updateStatusUi() {
+      $('seed-label').textContent = backendStatus.seed ?? 7411;
+      $('pause-button').textContent = backendStatus.paused
+        ? 'Roboter & Nervensystem fortsetzen'
+        : 'Roboter & Nervensystem pausieren';
+      $('speed-select').value = String(backendStatus.speed ?? 1);
+      $('tissue-profile-select').value = backendStatus.tissue_profile || 'standard';
+      $('controller-select').value = backendStatus.control_source || 'neural_direct';
+      const evaluationButton = $('robot-evaluation-toggle');
+      evaluationButton.textContent = backendStatus.evaluation_mode
+        ? 'Lernmodus fortsetzen'
+        : 'Testmodus starten';
+      evaluationButton.classList.toggle('primary', Boolean(backendStatus.evaluation_mode));
+      const drawlabModeButton = $('drawlab-mode-toggle');
+      if (drawlabModeButton) {
+        drawlabModeButton.textContent = backendStatus.evaluation_mode
+          ? 'Lernmodus fortsetzen'
+          : 'Testmodus starten';
+        drawlabModeButton.classList.toggle('primary', Boolean(backendStatus.evaluation_mode));
+      }
+      const integratedStatus = $('integrated-imaginatio-status');
+      if (integratedStatus) {
+        const imaginatioReady = Boolean(backendStatus.imaginatio_active);
+        const cortexReady = Boolean(backendStatus.cortex_available && backendStatus.cortex_configured);
+        integratedStatus.className = `status ${imaginatioReady ? 'live' : 'error'}`;
+        integratedStatus.querySelector('span').textContent = imaginatioReady
+          ? (cortexReady ? 'IMAGINATIO + Cortex bereit' : 'IMAGINATIO bereit · Cortex nicht geladen')
+          : 'IMAGINATIO nicht verfügbar';
+      }
+      updateMapControls();
+      $('lab-safety-state').textContent = backendStatus.safety?.enabled ? 'AKTIV' : 'DEAKTIVIERT';
+      $('lab-safety-reason').textContent = backendStatus.safety?.last_reason === 'none' ? 'keiner' : backendStatus.safety?.last_reason || '—';
+      $('lab-safety-count').textContent = Number(backendStatus.safety?.blocked_actions || 0).toLocaleString('de-DE');
+      if (backendStatus.error) {
+        setConnection('error', 'Training angehalten');
+        showError(backendStatus.error);
+      } else if (backendStatus.paused) {
+        setConnection('', 'Roboter & Nervensystem pausiert');
+        showError('');
+      } else if (backendStatus.evaluation_mode) {
+        setConnection('live', 'Testmodus · Lernen eingefroren');
+        showError('');
+      } else {
+        setConnection('live', 'Gemeinsames Live-Training aktiv');
+        showError('');
+      }
+    }
+
+    $('pause-button').addEventListener('click', async () => {
+      try { await postControl({ action: backendStatus.paused ? 'resume' : 'pause' }); }
+      catch (error) { showError(error.message); }
+    });
+    $('camera-button').addEventListener('click', () => {
+      camera.position.copy(initialCamera);
+      controls.target.copy(modelCenter);
+      controls.update();
+    });
+    $('robot-camera-button').addEventListener('click', () => {
+      robotCamera.position.copy(robotInitialCamera);
+      robotControls.target.set(0, 0, 0);
+      robotControls.update();
+    });
+    $('robot-evaluation-toggle').addEventListener('click', async () => {
+      try {
+        backendStatus = await postControl({
+          action: 'evaluation_mode',
+          enabled: !backendStatus.evaluation_mode
+        });
+        updateStatusUi();
+        updateRobotMap(await getJson('/api/robot'));
+      } catch (error) { showError(error.message); }
+    });
+    function applyRobotMapEditUi() {
+      $('robot-map-editor').hidden = !robotMapEditMode;
+      $('robot-edit-toggle').classList.toggle('primary', robotMapEditMode);
+      $('robot-edit-toggle').textContent = robotMapEditMode ? 'Bearbeitung beenden' : 'Karte bearbeiten';
+      $('robot-edit-toggle').setAttribute('aria-expanded', String(robotMapEditMode));
+      robotCanvas.classList.toggle('editing', robotMapEditMode);
+      robotControls.enabled = !robotMapEditMode;
+      if (!robotMapEditMode) robotEditMarker.visible = false;
+      $('robot-scene-note').textContent = robotMapEditMode
+        ? 'Bearbeitungsmodus · Zelle anklicken · Ungültige oder unlösbare Änderungen werden abgewiesen'
+        : 'Ziehen: Karte drehen · Mausrad: zoomen · Cyan: tatsächlich gefahren · Violett: historisch beste, schleifenbereinigte Erfolgsroute';
+    }
+    $('robot-edit-toggle').addEventListener('click', async () => {
+      try {
+        robotMapEditMode = !robotMapEditMode;
+        if (robotMapEditMode && !backendStatus.paused) await postControl({ action: 'pause' });
+        $('robot-map-editor-status').textContent = robotMapEditMode
+          ? 'Training pausiert. Wähle ein Werkzeug und klicke eine Zelle an.'
+          : 'Bearbeitung beendet.';
+        applyRobotMapEditUi();
+      } catch (error) {
+        robotMapEditMode = false;
+        applyRobotMapEditUi();
+        showError(error.message);
+      }
+    });
+    document.querySelectorAll('[data-map-tool]').forEach((button) => {
+      button.addEventListener('click', () => {
+        robotMapTool = button.dataset.mapTool;
+        document.querySelectorAll('[data-map-tool]').forEach((candidate) => {
+          candidate.classList.toggle('active', candidate === button);
+        });
+        const labels = {
+          obstacle: 'Hindernis setzen', erase: 'Zelle freigeben',
+          start: 'Start setzen', goal: 'Ziel setzen'
+        };
+        $('robot-map-editor-status').textContent = `${labels[robotMapTool]}: Klicke die gewünschte Zelle an.`;
+      });
+    });
+    $('robot-map-select').addEventListener('change', async (event) => {
+      if (robotMapRequestPending) return;
+      robotMapRequestPending = true;
+      try {
+        const payload = await postControl({ action: 'map_select', id: event.target.value });
+        backendStatus = payload;
+        updateStatusUi();
+        updateRobotMap(await getJson('/api/robot'));
+        $('robot-map-editor-status').textContent = `${payload.active_map_name} geladen. Das gelernte Nervensystem wurde beibehalten.`;
+      } catch (error) {
+        updateMapControls();
+        showError(error.message);
+      } finally {
+        robotMapRequestPending = false;
+      }
+    });
+    $('robot-map-rename').addEventListener('click', async () => {
+      try {
+        const payload = await postControl({ action: 'map_rename', name: $('robot-map-name').value });
+        backendStatus = payload;
+        updateStatusUi();
+        updateRobotMap(await getJson('/api/robot'));
+        $('robot-map-editor-status').textContent = 'Kartenname gespeichert.';
+      } catch (error) { showError(error.message); }
+    });
+    $('robot-map-reset').addEventListener('click', async () => {
+      if (!confirm('Diese Karte auf ihren mitgelieferten Ausgangszustand zurücksetzen? Das gelernte Nervensystem bleibt erhalten.')) return;
+      try {
+        const payload = await postControl({ action: 'map_reset' });
+        backendStatus = payload;
+        updateStatusUi();
+        updateRobotMap(await getJson('/api/robot'));
+        $('robot-map-editor-status').textContent = 'Standardkarte wiederhergestellt. Das Training bleibt pausiert.';
+      } catch (error) { showError(error.message); }
+    });
+
+    const robotMapRaycaster = new THREE.Raycaster();
+    const robotMapPointer = new THREE.Vector2();
+    let robotMapPointerDown = null;
+    function robotMapCellAt(event) {
+      if (!robotWorldData || !robotFloor) return null;
+      const rect = robotCanvas.getBoundingClientRect();
+      robotMapPointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      robotMapPointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+      robotMapRaycaster.setFromCamera(robotMapPointer, robotCamera);
+      const hit = robotMapRaycaster.intersectObject(robotFloor, false)[0];
+      if (!hit) return null;
+      const world = robotWorldData.world;
+      const x = Math.round(hit.point.x / robotCell + (world.width - 1) / 2);
+      const z = Math.round(hit.point.z / robotCell + (world.depth - 1) / 2);
+      if (x < 0 || z < 0 || x >= world.width || z >= world.depth) return null;
+      return { x, z };
+    }
+    robotCanvas.addEventListener('pointermove', (event) => {
+      if (!robotMapEditMode) return;
+      const cell = robotMapCellAt(event);
+      robotEditMarker.visible = Boolean(cell);
+      if (!cell) return;
+      robotEditMarker.position.copy(robotPoint([cell.x, 0, cell.z], 0.8));
+      const colors = { obstacle: 0xffc66b, erase: 0xff6f7f, start: 0x59e1ff, goal: 0x72f3b2 };
+      robotEditMarker.material.color.set(colors[robotMapTool] || 0x59e1ff);
+    });
+    robotCanvas.addEventListener('pointerleave', () => { robotEditMarker.visible = false; });
+    robotCanvas.addEventListener('pointerdown', (event) => {
+      if (robotMapEditMode) robotMapPointerDown = { x: event.clientX, y: event.clientY };
+    });
+    robotCanvas.addEventListener('pointerup', async (event) => {
+      if (!robotMapEditMode || !robotMapPointerDown || robotMapRequestPending) return;
+      const movement = Math.hypot(event.clientX - robotMapPointerDown.x, event.clientY - robotMapPointerDown.y);
+      robotMapPointerDown = null;
+      if (movement > 5) return;
+      const cell = robotMapCellAt(event);
+      if (!cell) return;
+      robotMapRequestPending = true;
+      try {
+        const payload = await postControl({ action: 'map_edit', tool: robotMapTool, x: cell.x, z: cell.z });
+        backendStatus = payload;
+        updateStatusUi();
+        updateRobotMap(await getJson('/api/robot'));
+        $('robot-map-editor-status').textContent = `Zelle ${cell.x}/${cell.z} geändert und in ${payload.active_map_name} gespeichert.`;
+      } catch (error) {
+        $('robot-map-editor-status').textContent = error.message;
+        showError(error.message);
+      } finally {
+        robotMapRequestPending = false;
+      }
+    });
+    $('reset-button').addEventListener('click', async () => {
+      if (!confirm('Roboter und Nervensystem gemeinsam auf den Ausgangszustand zurücksetzen?')) return;
+      try {
+        await postControl({ action: 'reset', seed: backendStatus.seed || 7411 });
+        const geometry = await getJson('/api/geometry');
+        buildGeometry(geometry);
+      } catch (error) { showError(error.message); }
+    });
+    $('speed-select').addEventListener('change', async (event) => {
+      try { await postControl({ action: 'speed', value: Number(event.target.value) }); }
+      catch (error) { showError(error.message); }
+    });
+    $('tissue-profile-select').addEventListener('change', async (event) => {
+      const profile = event.target.value;
+      const count = backendStatus.tissue_profiles?.[profile] || 384;
+      if (!confirm(`Gewebe auf ${Number(count).toLocaleString('de-DE')} Neuronen umstellen? Roboterwelt und Nervensystem beginnen gemeinsam neu.`)) {
+        event.target.value = backendStatus.tissue_profile || 'standard';
+        return;
+      }
+      try {
+        await postControl({ action: 'tissue_size', profile });
+        await refreshGeometry(true);
+      } catch (error) { showError(error.message); }
+    });
+
+    $('controller-select').addEventListener('change', async (event) => {
+      const mode = event.target.value;
+      if (!confirm(`Controller auf „${controllerLabel(mode)}“ umstellen? Roboterwelt und Nervensystem werden gemeinsam neu gestartet.`)) {
+        event.target.value = backendStatus.control_source || 'neural_direct';
+        return;
+      }
+      try {
+        await postControl({ action: 'controller', value: mode });
+        await refreshGeometry(true);
+      } catch (error) { showError(error.message); }
+    });
+    $('apply-intervention').addEventListener('click', async () => {
+      try {
+        await postControl({ action: 'intervention', preset: $('intervention-select').value });
+      } catch (error) { showError(error.message); }
+    });
+    $('start-experiment').addEventListener('click', async () => {
+      try {
+        await postControl({
+          action: 'start_ablation',
+          preset: $('intervention-select').value,
+          steps: Number($('experiment-steps').value),
+          controller: $('controller-select').value
+        });
+      } catch (error) { showError(error.message); }
+    });
+    $('save-snapshot').addEventListener('click', async () => {
+      try {
+        await postControl({ action: 'save_snapshot', label: $('snapshot-label').value });
+        $('snapshot-label').value = '';
+        await refreshSnapshots();
+      } catch (error) { showError(error.message); }
+    });
+    $('load-snapshot').addEventListener('click', async () => {
+      const id = $('snapshot-select').value;
+      if (!id) return;
+      if (!confirm('Den vollständigen gespeicherten Zustand laden? Das System bleibt danach gemeinsam pausiert.')) return;
+      try {
+        await postControl({ action: 'load_snapshot', id });
+        await refreshGeometry(true);
+      } catch (error) { showError(error.message); }
+    });
+
+    async function refreshGeometry(force = false) {
+      const data = await getJson('/api/geometry');
+      const volume = Number(data.tissue_shape?.volume_ratio || 1).toFixed(4);
+      const signature = `${data.seed}:${data.neurons.length}:${data.dendrites.length}:${data.axons.length}:${volume}`;
+      if (force || signature !== lastGeometrySignature) buildGeometry(data);
+    }
+
+    async function refreshSnapshots() {
+      const payload = await getJson('/api/snapshots');
+      const select = $('snapshot-select');
+      const selected = select.value;
+      select.innerHTML = '';
+      if (!payload.snapshots.length) {
+        select.add(new Option('Noch keine Snapshots', ''));
+        return;
+      }
+      payload.snapshots.forEach((snapshot) => {
+        const date = snapshot.created_at ? new Date(snapshot.created_at).toLocaleString('de-DE') : '';
+        select.add(new Option(`${snapshot.label} · ${snapshot.map_name || 'Karte'} · ${date}`, snapshot.id));
+      });
+      if ([...select.options].some((option) => option.value === selected)) select.value = selected;
+    }
+
+    function renderExperiment(data) {
+      const status = $('experiment-status');
+      const running = data.status === 'running';
+      status.className = `status ${data.status === 'complete' ? 'live' : data.status === 'failed' ? 'error' : ''}`;
+      status.querySelector('span').textContent = running
+        ? `Versuch läuft · ${Math.round((data.progress || 0) * 100)} %`
+        : data.status === 'complete' ? `Versuch abgeschlossen · ${data.id}`
+        : data.status === 'failed' ? 'Versuch fehlgeschlagen' : 'Labor bereit';
+      $('experiment-progress').style.width = `${Math.max(0, Math.min(100, (data.progress || 0) * 100))}%`;
+      $('start-experiment').disabled = running;
+      if (data.status === 'failed') {
+        $('experiment-description').textContent = data.error || 'Der Versuch konnte nicht abgeschlossen werden.';
+        return;
+      }
+      if (!data.result) return;
+      $('experiment-description').textContent = `${data.preset} · ${Number(data.steps).toLocaleString('de-DE')} Schritte · Intervention minus Kontrolle`;
+      const labels = {
+        successes: 'Zielerfolge', collisions: 'Kollisionen', total_reward: 'Gesamtbelohnung',
+        goal_progress: 'Zielfortschritt', mean_energy: 'Gewebeenergie', oxygen: 'Sauerstoff',
+        glucose: 'Glukose', myelin: 'Myelin', atp: 'ATP', pump: 'Na⁺/K⁺-Pumpe',
+        prediction_error: 'Vorhersagefehler'
+      };
+      $('experiment-result').innerHTML = Object.entries(data.result.delta || {}).map(([key, value]) =>
+        `<span>${labels[key] || key}</span><strong style="color:${value < 0 ? '#ff7e8d' : '#72f3b2'}">${value >= 0 ? '+' : ''}${format(value, 4)}</strong>`
+      ).join('');
+    }
+
+    function drawTimeline(payload) {
+      const canvas2d = $('timeline-canvas');
+      const rect = canvas2d.getBoundingClientRect();
+      const ratio = Math.min(devicePixelRatio, 2);
+      canvas2d.width = Math.max(300, Math.round(rect.width * ratio));
+      canvas2d.height = Math.max(160, Math.round(rect.height * ratio));
+      const context = canvas2d.getContext('2d');
+      context.scale(ratio, ratio);
+      const width = canvas2d.width / ratio;
+      const height = canvas2d.height / ratio;
+      context.clearRect(0, 0, width, height);
+      context.strokeStyle = 'rgba(163,211,230,.12)';
+      context.lineWidth = 1;
+      for (let line = 1; line < 4; line += 1) {
+        const y = line * height / 4;
+        context.beginPath(); context.moveTo(0, y); context.lineTo(width, y); context.stroke();
+      }
+      const samples = payload.samples || [];
+      if (samples.length < 2) return;
+      const rewards = samples.map((item) => Number(item.total_reward || 0));
+      const minReward = Math.min(...rewards);
+      const rewardRange = Math.max(1e-9, Math.max(...rewards) - minReward);
+      const draw = (color, valueAt) => {
+        context.strokeStyle = color; context.lineWidth = 2; context.beginPath();
+        samples.forEach((item, index) => {
+          const x = index / (samples.length - 1) * width;
+          const y = height - 8 - Math.max(0, Math.min(1, valueAt(item))) * (height - 16);
+          if (index) context.lineTo(x, y); else context.moveTo(x, y);
+        });
+        context.stroke();
+      };
+      draw('#59e1ff', (item) => (Number(item.total_reward || 0) - minReward) / rewardRange);
+      draw('#72f3b2', (item) => Number(item.mean_energy || 0));
+      const firstSample = samples[0].sample;
+      const sampleRange = Math.max(1, samples[samples.length - 1].sample - firstSample);
+      context.strokeStyle = '#ffc66b'; context.lineWidth = 1;
+      (payload.markers || []).forEach((marker) => {
+        const x = (marker.sample - firstSample) / sampleRange * width;
+        if (x < 0 || x > width) return;
+        context.beginPath(); context.moveTo(x, 0); context.lineTo(x, height); context.stroke();
+      });
+    }
+
+    async function laboratoryLoop() {
+      try {
+        const [experiment, timeline] = await Promise.all([
+          getJson('/api/experiment'), getJson('/api/timeline')
+        ]);
+        renderExperiment(experiment);
+        drawTimeline(timeline);
+      } catch (error) {
+        showError(`Kausallabor konnte nicht aktualisiert werden: ${error.message}`);
+      } finally {
+        setTimeout(laboratoryLoop, 1000);
+      }
+    }
+    async function frameLoop() {
+      try {
+        const frame = await getJson('/api/frame');
+        const liveVolumeRatio = Number(frame.biology?.tissue_volume_ratio || 1);
+        if (!geometryData || frame.axons.length !== geometryData.axons.length
+            || Math.abs(liveVolumeRatio - lastRenderedTissueRatio) > 0.002) {
+          await refreshGeometry(true);
+        }
+        updateFrame(frame);
+      } catch (error) {
+        setConnection('error', 'Keine Live-Verbindung');
+        showError(`Live-Daten konnten nicht gelesen werden: ${error.message}`);
+      } finally {
+        setTimeout(frameLoop, 90);
+      }
+    }
+    async function statusLoop() {
+      try {
+        backendStatus = await getJson('/api/status');
+        updateStatusUi();
+      } catch (error) {
+        setConnection('error', 'Monitor nicht erreichbar');
+      } finally {
+        setTimeout(statusLoop, 800);
+      }
+    }
+    async function robotLoop() {
+      try {
+        updateRobotMap(await getJson('/api/robot'));
+      } catch (error) {
+        showError(`Roboterkarte konnte nicht gelesen werden: ${error.message}`);
+      } finally {
+        setTimeout(robotLoop, 90);
+      }
+    }
+    async function environmentMapLoop() {
+      try {
+        updateEnvironmentMap(await getJson('/api/environment-map'));
+      } catch (error) {
+        // Older libraries have no explorer map; keep the robot view available.
+      } finally {
+        setTimeout(environmentMapLoop, 500);
+      }
+    }
+
+    function updateOrganism(data) {
+      if (!data) return;
+      liveOrganismData = data;
+      const circ = data.circulation || {};
+      const heart = data.heart || {};
+      const lung = data.lung || {};
+      const kidney = data.kidney || {};
+      const kidneyPair = data.kidneys || {};
+      const leftKidney = kidneyPair.left || {};
+      const rightKidney = kidneyPair.right || {};
+      const intero = data.interoception || {};
+
+      // Values from JSON (supporting both camelCase and snake_case)
+      const hr = heart.heartRateBpm ?? heart.heart_rate_bpm ?? 0;
+      const map = circ.meanArterialPressureMmHg ?? circ.mean_arterial_pressure_mm_hg ?? 0;
+      const sys = circ.systolicPressureMmHg ?? circ.systolic_arterial_pressure_mm_hg ?? 0;
+      const dia = circ.diastolicPressureMmHg ?? circ.diastolic_arterial_pressure_mm_hg ?? 0;
+      const cvp = circ.centralVenousPressureMmHg ?? circ.central_venous_pressure_mm_hg ?? 0;
+      const sao2 = (circ.arterialOxygenSaturation ?? circ.arterial_oxygen_saturation ?? 0) * 100;
+      const ph = circ.arterialPh ?? circ.arterial_ph ?? 7.40;
+      const pao2 = circ.arterialPo2MmHg ?? circ.arterial_po2_mm_hg ?? 0;
+      const paco2 = circ.arterialPco2MmHg ?? circ.arterial_pco2_mm_hg ?? 0;
+      const na = circ.plasmaNaMm ?? circ.plasma_na_mm ?? 142;
+      const k = circ.plasmaKMm ?? circ.plasma_k_mm ?? 4.0;
+      const ca = circ.plasmaCaMm ?? circ.plasma_ca_mm ?? 1.25;
+      const glc = circ.plasmaGlucoseMm ?? circ.plasma_glucose_mm ?? 5.0;
+      const urea = circ.plasmaUreaMm ?? circ.plasma_urea_mm ?? 5.0;
+      const lac = circ.plasmaLactateMm ?? circ.plasma_lactate_mm ?? 1.0;
+      const temp = circ.bloodTemperatureC ?? circ.blood_temperature_c ?? 37.0;
+      const vol = circ.totalBloodVolumeL ?? circ.total_blood_volume_l ?? 5.0;
+
+      const co = heart.cardiacOutputLPerMin ?? heart.cardiac_output_l_per_min ?? 0;
+      const sv = heart.strokeVolumeMl ?? heart.stroke_volume_ml ?? 0;
+      const ef = (heart.ejectionFractionLv ?? heart.ejection_fraction_lv ?? 0) * 100;
+      const plv = heart.leftVentriclePressureMmHg ?? heart.left_ventricle_pressure_mm_hg ?? 0;
+      const prv = heart.rightVentriclePressureMmHg ?? heart.right_ventricle_pressure_mm_hg ?? 0;
+      const pla = heart.leftAtriumPressureMmHg ?? heart.left_atrium_pressure_mm_hg ?? 0;
+      const pra = heart.rightAtriumPressureMmHg ?? heart.right_atrium_pressure_mm_hg ?? 0;
+      const vlv = heart.endDiastolicVolumeLvMl ?? heart.end_diastolic_volume_lv_ml ?? 120;
+      const vrv = heart.endDiastolicVolumeRvMl ?? heart.end_diastolic_volume_rv_ml ?? 120;
+      const mvo2 = heart.myocardialO2ConsumptionMlPerMin ?? heart.myocardial_o2_consumption_ml_per_min ?? 0;
+      const triOpen = (heart.tricuspidValveOpen ?? heart.tricuspid_valve_open ?? 0) > 0.5;
+      const pulOpen = (heart.pulmonicValveOpen ?? heart.pulmonic_valve_open ?? 0) > 0.5;
+      const mitOpen = (heart.mitralValveOpen ?? heart.mitral_valve_open ?? 0) > 0.5;
+      const aorOpen = (heart.aorticValveOpen ?? heart.aortic_valve_open ?? 0) > 0.5;
+
+      const rr = lung.respirationRateBpm ?? lung.respiration_rate_bpm ?? 0;
+      const vt = lung.tidalVolumeL ?? lung.tidal_volume_l ?? 0.5;
+      const ve = lung.minuteVentilationLPerMin ?? lung.minute_ventilation_l_per_min ?? 0;
+      const pao2_alv = lung.alveolarPo2MmHg ?? lung.alveolar_po2_mm_hg ?? 0;
+      const paco2_alv = lung.alveolarPco2MmHg ?? lung.alveolar_pco2_mm_hg ?? 0;
+      const uptake = lung.o2UptakeRateMlPerMin ?? lung.o2_uptake_rate_ml_per_min ?? 0;
+
+      const gfr = kidney.glomerularFiltrationRateMlPerMin ?? kidney.glomerular_filtration_rate_ml_per_min ?? 0;
+      const urine = kidney.urineOutputRateMlPerMin ?? kidney.urine_output_rate_ml_per_min ?? 0;
+      const osm = kidney.urineOsmolarityMOsmPerKg ?? kidney.urine_osmolarity_m_osm_per_kg ?? 0;
+      const renin = kidney.reninSecretionRate ?? kidney.renin_secretion_rate ?? 1.0;
+      const ang2 = kidney.angiotensinIiPm ?? kidney.angiotensin_ii_pm ?? 15.0;
+      const leftGfr = leftKidney.glomerularFiltrationRateMlPerMin ?? 0;
+      const rightGfr = rightKidney.glomerularFiltrationRateMlPerMin ?? 0;
+      const leftRbf = leftKidney.renalBloodFlowMlPerMin ?? 0;
+      const rightRbf = rightKidney.renalBloodFlowMlPerMin ?? 0;
+
+      const distress = intero.visceralDistress ?? intero.visceral_distress ?? 0;
+      const cvLoad = intero.cardiovascularLoad ?? intero.cardiovascular_load ?? 0;
+      const hypoxia = intero.respiratoryHypoxia ?? intero.respiratory_hypoxia ?? 0;
+      const symp = Math.max(0.01, intero.sympatheticTone ?? intero.sympathetic_tone ?? 0.5);
+      const para = Math.max(0.01, intero.parasympatheticTone ?? intero.parasympathetic_tone ?? 0.5);
+
+      // Top bar indicators
+      setText('top-hr', Math.round(hr));
+      setText('top-map', format(map, 1));
+      setText('top-sao2', format(sao2, 1));
+      setText('top-co', format(co, 2));
+      setText('top-rr', Math.round(rr));
+      setText('top-gfr', format(gfr, 1));
+      setText('top-urine', format(urine, 2));
+      setText('top-distress', percent(distress));
+      const elDistress = $('top-distress');
+      if (elDistress) elDistress.style.color = distress > 0.4 ? '#ff6f7f' : distress > 0.2 ? '#ffc66b' : '#72f3b2';
+
+      // 3D Valve Ring visuals
+      if (heartValves3D.tri) heartValves3D.tri.material.opacity = triOpen ? 0.95 : 0.2;
+      if (heartValves3D.pul) heartValves3D.pul.material.opacity = pulOpen ? 0.95 : 0.2;
+      if (heartValves3D.mit) heartValves3D.mit.material.opacity = mitOpen ? 0.95 : 0.2;
+      if (heartValves3D.aor) heartValves3D.aor.material.opacity = aorOpen ? 0.95 : 0.2;
+
+      // Heart Panel
+      setText('h-plv', format(plv, 1));
+      setText('h-prv', format(prv, 1));
+      setText('h-pla', format(pla, 1));
+      setText('h-pra', format(pra, 1));
+      setText('h-vlv', format(vlv, 0));
+      setText('h-vrv', format(vrv, 0));
+      setText('h-vla', '40');
+      setText('h-vra', '40');
+
+      const vTri = $('v-tri'); if (vTri) vTri.className = `valve-badge ${triOpen ? 'open' : ''}`;
+      const vPul = $('v-pul'); if (vPul) vPul.className = `valve-badge ${pulOpen ? 'open' : ''}`;
+      const vMit = $('v-mit'); if (vMit) vMit.className = `valve-badge ${mitOpen ? 'open' : ''}`;
+      const vAor = $('v-aor'); if (vAor) vAor.className = `valve-badge ${aorOpen ? 'open' : ''}`;
+
+      setText('h-hr', `${Math.round(hr)} bpm`);
+      setText('h-sv', `${format(sv, 1)} mL`);
+      setText('h-co', `${format(co, 2)} L/min`);
+      setText('h-ef', `${format(ef, 1)} %`);
+      setText('h-mvo2', `${format(mvo2, 1)} mL/min`);
+
+      // Circulation Panel
+      setText('circ-vol-chip', `${format(vol, 2)} L`);
+      setText('c-map', `${format(map, 1)} mmHg`);
+      setText('c-sysdia', `${format(sys, 1)} / ${format(dia, 1)}`);
+      setText('c-cvp', `${format(cvp, 1)} mmHg`);
+      setText('c-sao2', `${format(sao2, 1)} %`);
+      setText('c-ph', format(ph, 2));
+      setText('c-gases', `${format(pao2, 1)} / ${format(paco2, 1)}`);
+      setText('c-ions', `${format(na, 1)} / ${format(k, 1)} / ${format(ca, 2)}`);
+      setText('c-solutes', `${format(glc, 1)} / ${format(urea, 1)} / ${format(lac, 1)}`);
+      setText('c-temp', `${format(temp, 1)} °C`);
+
+      // Lung Panel
+      setText('l-rr', `${Math.round(rr)} /min`);
+      setText('l-vt', `${format(vt, 2)} L`);
+      setText('l-ve', `${format(ve, 1)} L/min`);
+      setText('l-alveolar', `${format(pao2_alv, 1)} / ${format(paco2_alv, 1)}`);
+      setText('l-uptake', `${format(uptake, 0)} mL/min`);
+
+      // Kidney Panel
+      setText('k-gfr', `${format(gfr, 1)} mL/min`);
+      setText('k-left', `${format(leftGfr, 1)} / ${format(leftRbf, 0)} mL/min`);
+      setText('k-right', `${format(rightGfr, 1)} / ${format(rightRbf, 0)} mL/min`);
+      setText('k-urine', `${format(urine, 2)} mL/min`);
+      setText('k-osm', `${format(osm, 0)} mOsm/kg`);
+      setText('k-raas', `${format(renin, 2)}x / ${format(ang2, 1)} pM`);
+      const activeKidneyCount = (leftGfr > 0.01 ? 1 : 0) + (rightGfr > 0.01 ? 1 : 0);
+      setText('kidney-chip', `${activeKidneyCount} aktive Nieren`);
+
+      const updateKidneyMesh = (group, organGfr) => {
+        if (!group) return;
+        const functionRatio = Math.max(0, Math.min(1.25, organGfr / 62.5));
+        const surface = group.userData.surface;
+        if (surface?.material) {
+          surface.material.color.set(functionRatio > 0.15 ? 0x8a2be2 : 0x3b293f);
+          surface.material.emissive.set(functionRatio > 0.15 ? 0x320c57 : 0x120b15);
+          surface.material.opacity = 0.35 + 0.53 * Math.min(1, functionRatio);
+        }
+        if (group.userData.micro) {
+          group.userData.micro.traverse((child) => {
+            if (child.material) child.material.opacity = 0.08 + 0.74 * Math.min(1, functionRatio);
+          });
+        }
+      };
+      updateKidneyMesh(leftKidney3D, leftGfr);
+      updateKidneyMesh(rightKidney3D, rightGfr);
+
+      // Interoception Panel
+      setText('i-distress', `${percent(distress)} (Kardio: ${format(cvLoad, 2)}, Hypoxie: ${format(hypoxia, 2)})`);
+      const totalAutonomic = symp + para;
+      const sympPct = (symp / totalAutonomic) * 100;
+      const paraPct = (para / totalAutonomic) * 100;
+      setText('i-autonomic', `Symp ${format(symp, 2)} / Vagus ${format(para, 2)}`);
+      setBar('bar-symp', sympPct / 100);
+      setBar('bar-para', paraPct / 100);
+    }
+
+    async function organismLoop() {
+      try {
+        const organismData = await getJson('/api/organism');
+        updateOrganism(organismData);
+      } catch (error) {
+        // Organism update error suppressed to keep UI responsive
+      } finally {
+        setTimeout(organismLoop, 100);
+      }
+    }
+
+    $('atmosphere-select').addEventListener('change', async (event) => {
+      try {
+        await postControl({ action: 'atmosphere', preset: event.target.value });
+        const map = { earth: 'Erde 21% O₂', mars: 'Mars 0.13% O₂', altitude_4000m: 'Hochgebirge 4000m', hypoxic_chamber: 'Hypoxie-Kammer 10% O₂', hypercapnia: 'Hyperkapnie 5% CO₂' };
+        setText('lung-atmo-chip', map[event.target.value] || event.target.value);
+      } catch (error) { showError(error.message); }
+    });
+
+    $('btn-org-infuse').addEventListener('click', async () => {
+      try {
+        await postControl({ action: 'organism_infuse', volume_ml: 500.0, na_mm: 154.0, k_mm: 4.0, glucose_mm: 5.0 });
+      } catch (error) { showError(error.message); }
+    });
+
+    $('btn-org-bleed').addEventListener('click', async () => {
+      try {
+        await postControl({ action: 'organism_bleed', volume_ml: 300.0 });
+      } catch (error) { showError(error.message); }
+    });
+
+    $('btn-org-reset').addEventListener('click', async () => {
+      try {
+        await postControl({ action: 'organism_reset' });
+        leftKidneyFunction = 1.0;
+        rightKidneyFunction = 1.0;
+        setText('btn-left-kidney', 'Linke Niere: 100 %');
+        setText('btn-right-kidney', 'Rechte Niere: 100 %');
+      } catch (error) { showError(error.message); }
+    });
+
+    async function setRenalFunction(left, right) {
+      leftKidneyFunction = left;
+      rightKidneyFunction = right;
+      await postControl({
+        action: 'organism_renal_function',
+        left_fraction: left,
+        right_fraction: right
+      });
+      setText('btn-left-kidney', `Linke Niere: ${Math.round(left * 100)} %`);
+      setText('btn-right-kidney', `Rechte Niere: ${Math.round(right * 100)} %`);
+    }
+    $('btn-left-kidney').addEventListener('click', async () => {
+      try { await setRenalFunction(leftKidneyFunction > 0 ? 0 : 1, rightKidneyFunction); }
+      catch (error) { showError(error.message); }
+    });
+    $('btn-right-kidney').addEventListener('click', async () => {
+      try { await setRenalFunction(leftKidneyFunction, rightKidneyFunction > 0 ? 0 : 1); }
+      catch (error) { showError(error.message); }
+    });
+
+    function resize() {
+      const rect = canvas.getBoundingClientRect();
+      renderer.setSize(Math.max(1, rect.width), Math.max(1, rect.height), false);
+      camera.aspect = rect.width / Math.max(1, rect.height);
+      camera.updateProjectionMatrix();
+      const robotRect = robotCanvas.getBoundingClientRect();
+      robotRenderer.setSize(Math.max(1, robotRect.width), Math.max(1, robotRect.height), false);
+      robotCamera.aspect = robotRect.width / Math.max(1, robotRect.height);
+      robotCamera.updateProjectionMatrix();
+    }
+    new ResizeObserver(resize).observe(canvas);
+    new ResizeObserver(resize).observe(robotCanvas);
+    resize();
+
+    function animate() {
+      controls.update();
+      robotControls.update();
+
+      // Dynamic Organism 3D Animations (Beating Heart, Breathing Lungs, Flowing Blood)
+      const now = performance.now() * 0.001;
+      const hr = (liveOrganismData?.heart?.heartRateBpm ?? liveOrganismData?.heart?.heart_rate_bpm) || 60;
+      const rr = (liveOrganismData?.lung?.respirationRateBpm ?? liveOrganismData?.lung?.respiration_rate_bpm) || 14;
+      const co = (liveOrganismData?.heart?.cardiacOutputLPerMin ?? liveOrganismData?.heart?.cardiac_output_l_per_min) || 5.0;
+
+      // Heart contraction pulse
+      if (heart3DGroup) {
+        const heartPhase = (now * (hr / 60.0) * 2 * Math.PI) % (2 * Math.PI);
+        const beatScale = 1.0 + 0.12 * Math.pow(Math.sin(heartPhase), 4);
+        heart3DGroup.scale.set(beatScale, beatScale, beatScale);
+
+        if (heart3DGroup.userData.saNode) {
+          heart3DGroup.userData.saNode.intensity = 0.6 + 2.4 * Math.max(0, Math.sin(heartPhase));
+        }
+      }
+
+      // Lung breathing expansion
+      if (lungs3DGroup) {
+        const respPhase = (now * (rr / 60.0) * 2 * Math.PI) % (2 * Math.PI);
+        const lungScale = 1.0 + 0.08 * (0.5 + 0.5 * Math.sin(respPhase));
+        lungs3DGroup.scale.set(lungScale, lungScale, lungScale);
+      }
+
+      // Blood flow particle circulation
+      if (bloodParticles.length && bloodSplines.length) {
+        const flowSpeed = 0.12 * Math.max(0.2, co / 5.0);
+        bloodParticles.forEach((particle) => {
+          particle.userData.progress = (particle.userData.progress + flowSpeed * 0.016) % 1.0;
+          const spline = bloodSplines[particle.userData.splineIdx];
+          if (spline) {
+            const pos = spline.getPoint(particle.userData.progress);
+            particle.position.copy(pos);
+          }
+        });
+      }
+
+      renderer.render(scene, camera);
+      robotRenderer.render(robotScene, robotCamera);
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    try {
+      const initialRobot = await getJson('/api/robot');
+      await refreshGeometry(true);
+      updateRobotMap(initialRobot);
+      frameLoop();
+      robotLoop();
+      environmentMapLoop();
+      organismLoop();
+      statusLoop();
+      laboratoryLoop();
+      // Legacy 32x32 drawlab is hidden; the embedded IMAGINATIO V14 studio owns this UI path.
+      refreshSnapshots();
+    } catch (error) {
+      setConnection('error', 'Start fehlgeschlagen');
+      showError(`Der Live-Monitor konnte nicht initialisiert werden: ${error.message}`);
+    }
+  </script>
+</body>
+</html>
