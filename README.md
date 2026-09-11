@@ -17,7 +17,7 @@ Die Live-Oberfläche startet mit 384 Neuronen. Umschaltbare Profile mit 96,
 1.536 und 6.144 Neuronen bilden zwei Hemisphären, sechs funktionale Regionen,
 vier kortikale Schichten und subkortikale modulatorische Kerne ab.
 
-![TATARUS Gesamtorganismus](Docs/assets/T_11_Organism_3D.png)
+![TATARUS Gesamtorganismus](docs/assets/T_11_Organism_3D.png)
 
 ## Herunterladen
 
@@ -46,7 +46,7 @@ CSV-/JSON-Besuchskarte als Lernspeicher und keinen versteckten Pfadplaner.
 - Throughput-v3 zählt den neuen `spatial_memory`-Bereich mit.
 
 Architektur und Wirkprinzip beschreibt das
-[`Docs/manuals/systemhandbuch.html`](Docs/manuals/systemhandbuch.html).
+[`Docs/manuals/systemhandbuch.html`](docs/manuals/systemhandbuch.html).
 
 ## Neu: Explorer-Kartografie für Rover und Drohnen
 
@@ -68,7 +68,7 @@ verwenden.
 Ein vollständiges Marsrover-Beispiel befindet sich in
 [`examples/explorer_rover.cpp`](examples/explorer_rover.cpp).
 Architektur, API und Grenzen beschreibt
-[`Docs/manuals/explorer-kartografie.html`](Docs/manuals/explorer-kartografie.html).
+[`Docs/manuals/explorer-kartografie.html`](docs/manuals/explorer-kartografie.html).
 
 ## Neu: TATARUS IMAGINATIO V14 – Self-Imprint und Neural-Motor-Engramm
 
@@ -228,11 +228,11 @@ Das Standalone-Labor ergänzt:
   bewusst markierter Wiederverwendung als neue Lernvorlage.
 
 Architektur, API, Snapshot-Inhalt und wissenschaftliche Aussagegrenzen stehen
-in [`Docs/manuals/imaginatio.html`](Docs/manuals/imaginatio.html). Die neue
+in [`Docs/manuals/imaginatio.html`](docs/manuals/imaginatio.html). Die neue
 Sehbahn ist in
-[`Docs/BIOLOGICAL_VISUAL_PATHWAY.md`](Docs/BIOLOGICAL_VISUAL_PATHWAY.md)
+[`Docs/BIOLOGICAL_VISUAL_PATHWAY.md`](docs/BIOLOGICAL_VISUAL_PATHWAY.md)
 beschrieben; ihre gemessene Generalisierung wird in
-[`Docs/IMAGINATIO_BIOLOGICAL_VISION_EVALUATION_2026-09-08.md`](Docs/IMAGINATIO_BIOLOGICAL_VISION_EVALUATION_2026-09-08.md)
+[`Docs/IMAGINATIO_BIOLOGICAL_VISION_EVALUATION_2026-09-08.md`](docs/IMAGINATIO_BIOLOGICAL_VISION_EVALUATION_2026-09-08.md)
 ausgewertet.
 
 ## Systemidee
@@ -294,27 +294,27 @@ Tools. Die 3D-Oberfläche lädt das festgelegte Three.js-Modul beim ersten Start
 
 Die Roboter-Sensorik führt IMU-Daten nicht mehr roh in den somatosensorischen Pfad. Beschleunigung und Rotation werden zuerst über das vestibuläre System in Bogengang-, Otolith-, Tilt- und Bewegungsafferenten übersetzt. Der daraus berechnete VOR stabilisiert anschließend das okuläre Frontend vor Retina und V1/V2. Ein nicht gelieferter, vollständig nullgesetzter `ImuState` bleibt sensorisch neutral und wird nicht als Freifall interpretiert.
 
-![TATARUS Systemarchitektur](Docs/assets/tatarus-architecture.svg)
+![TATARUS Systemarchitektur](docs/assets/tatarus-architecture.svg)
 
 ## Dokumentation
 
-- [Dokumentationsportal](Docs/index.html)
-- [Systemhandbuch](Docs/manuals/systemhandbuch.html)
-- [Organismus, Biologie und 3D-Beobachtung](Docs/manuals/organismus.html)
-- [Gewebewachstum und Mechanik](Docs/manuals/gewebewachstum.html)
-- [UI-Handbuch](Docs/manuals/ui-handbuch.html)
-- [IMAGINATIO UI · bebilderte Bedienungsanleitung](Docs/manuals/tatarus_imaginatio_ui_bedienungsanleitung.html)
-- [API-Referenz](Docs/manuals/api-referenz.html)
-- [Explorer-Kartografie](Docs/manuals/explorer-kartografie.html)
-- [TATARUS IMAGINATIO](Docs/manuals/imaginatio.html)
-- [Biologische Sehbahn](Docs/BIOLOGICAL_VISUAL_PATHWAY.md)
-- [Auswertung der unbekannten Bilder und Neuerzeugung](Docs/IMAGINATIO_BIOLOGICAL_VISION_EVALUATION_2026-09-08.md)
-- [Integrationsleitfaden](Docs/manuals/integration.html)
-- [Validierung](Docs/manuals/validierung.html)
-- [Vision und Verantwortung](Docs/manuals/vision-verantwortung.html)
-- [System-Wiki und Einzigartigkeitsanalyse](Docs/wiki/index.html)
-- [Skalierungsbenchmark und Sechs-Stunden-Auswertung](Docs/manuals/benchmark.html)
-- [Benchmark-Rohdaten](Docs/data/TATARUS_BENCHMARK_DATEN.json)
+- [Dokumentationsportal](docs/index.html)
+- [Systemhandbuch](docs/manuals/systemhandbuch.html)
+- [Organismus, Biologie und 3D-Beobachtung](docs/manuals/organismus.html)
+- [Gewebewachstum und Mechanik](docs/manuals/gewebewachstum.html)
+- [UI-Handbuch](docs/manuals/ui-handbuch.html)
+- [IMAGINATIO UI · bebilderte Bedienungsanleitung](docs/manuals/tatarus_imaginatio_ui_bedienungsanleitung.html)
+- [API-Referenz](docs/manuals/api-referenz.html)
+- [Explorer-Kartografie](docs/manuals/explorer-kartografie.html)
+- [TATARUS IMAGINATIO](docs/manuals/imaginatio.html)
+- [Biologische Sehbahn](docs/BIOLOGICAL_VISUAL_PATHWAY.md)
+- [Auswertung der unbekannten Bilder und Neuerzeugung](docs/IMAGINATIO_BIOLOGICAL_VISION_EVALUATION_2026-09-08.md)
+- [Integrationsleitfaden](docs/manuals/integration.html)
+- [Validierung](docs/manuals/validierung.html)
+- [Vision und Verantwortung](docs/manuals/vision-verantwortung.html)
+- [System-Wiki und Einzigartigkeitsanalyse](docs/wiki/index.html)
+- [Skalierungsbenchmark und Sechs-Stunden-Auswertung](docs/manuals/benchmark.html)
+- [Benchmark-Rohdaten](docs/data/TATARUS_BENCHMARK_DATEN.json)
 
 ## Build
 
